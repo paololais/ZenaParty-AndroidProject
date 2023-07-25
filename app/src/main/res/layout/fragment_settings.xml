@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#fff"
+    android:orientation="vertical"
+    android:padding="15dp"
+    tools:context=".activities.MainActivity">
+
+    <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp">
+        <ImageView
+            android:id="@+id/goBackBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_goback_foreground"
+            app:tint="@color/black"
+            tools:ignore="ContentDescription" />
+        <TextView
+            android:layout_toEndOf="@id/goBackBtn"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:text="@string/settings"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_border"
+        android:layout_marginTop="50dp">
+
+        <ImageView
+            android:id="@+id/notification_Icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@color/GIALLO"
+            android:padding="7dp"
+            android:src="@drawable/notifications_icon"
+            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@id/notification_Icon"
+            android:text="@string/notifiche"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            tools:ignore="RelativeOverlap" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/notificationBool"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:switchMinWidth="50dp"
+            android:theme="@style/notificationSwitch"
+            tools:ignore="TouchTargetSizeCheck" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/modificaprofilo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_border"
+        android:layout_marginTop="50dp">
+
+
+        <ImageView
+            android:id="@+id/edit_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@color/green"
+            android:src="@drawable/ic_edit_foreground"
+            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/edit_icon"
+            android:text="@string/modifica_profilo"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            tools:ignore="RelativeOverlap" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/right_mode_icon"
+            tools:ignore="ContentDescription" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/logoutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_border"
+        android:layout_marginTop="50dp">
+
+
+        <ImageView
+            android:id="@+id/logout_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#D84C4C"
+            android:src="@drawable/ic_logout_foreground"
+            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/logout_icon"
+            android:text="@string/logout"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            tools:ignore="RelativeOverlap" />
+    </RelativeLayout>
+</LinearLayout>
