@@ -63,4 +63,5 @@
     <string name="aggiungi">Aggiungi</string>
     <string name="home">Home</string>
     <string name="add_event">Add Event</string>
+    <string name="passwdiff">Passwords are different</string>
 </resources>

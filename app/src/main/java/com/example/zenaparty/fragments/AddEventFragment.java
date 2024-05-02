@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -74,7 +75,7 @@ public class AddEventFragment extends Fragment {
 
 
 
-            String eventHost = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+            String eventHost = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
             String eventPrice = ((EditText)view.findViewById(R.id.addEventPrice)).getText().toString();
 
 
@@ -84,6 +85,7 @@ public class AddEventFragment extends Fragment {
             if(eventName.isEmpty() || eventDescription.isEmpty() || eventLocation.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || eventType.isEmpty() || Objects.requireNonNull(eventHost).isEmpty()) {
                 //display error message
                 Log.d("AddEventFragment", "One of the fields is empty");
+                Toast.makeText(getContext(),"One of the fields is empty", Toast.LENGTH_LONG).show();
 
                 return;
             }

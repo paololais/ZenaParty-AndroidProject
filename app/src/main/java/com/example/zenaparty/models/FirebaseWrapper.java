@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.zenaparty.adapters.EventListAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -106,10 +108,7 @@ public class FirebaseWrapper {
                                 // Salva email nel database "users"
                                 DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
                                 usersRef.child(userId).child("email").setValue(userEmail);
-
-                                // Salva l'username nel database degli usernames
-                                DatabaseReference usernamesRef = FirebaseDatabase.getInstance().getReference("usernames");
-                                usernamesRef.child(username).setValue(userId);
+                                usersRef.child(userId).child("username").setValue(username);
 
                                 // Callback con esito positivo
                                 callback.invoke(true);
@@ -403,36 +402,22 @@ public class FirebaseWrapper {
             if (auth.getCurrentUser() != null) {
                 String userId = auth.getCurrentUser().getUid();
 
-                DatabaseReference usernamesRef = FirebaseDatabase.getInstance().getReference("usernames");
-                usernamesRef.orderByValue().equalTo(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            snapshot.getRef().removeValue((databaseError, databaseReference) -> {
-                                if (databaseError == null) {
-                                    // Rimozione riuscita, ora crea un nuovo nodo con il nuovo username e lo User ID
-                                    usernamesRef.child(newUsername).setValue(userId);
-                                    Log.d("FirebaseWrapper", "Modified username");
-                                    progressBar.setVisibility(View.GONE);
-
-                                    Toast.makeText(context, "Username Modificato", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    progressBar.setVisibility(View.GONE);
-                                    // Gestisci eventuali errori durante la rimozione del nodo precedente
-                                    Log.w("FirebaseWrapper", "Failed to remove value.", databaseError.toException());
-                                }
-                            });
-                        }
-                        progressBar.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        progressBar.setVisibility(View.GONE);
-                        // Gestisci eventuali errori
-                        Log.w("FirebaseWrapper", "Failed to read value.", databaseError.toException());
-                    }
-                });
+                DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+                usersRef.child(userId).child("username").setValue(newUsername)
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d("FirebaseWrapper", "Modified username");
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(context, "Username modificato", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("FirebaseWrapper", "Failed to modify username: " + e.getMessage());
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(context, "Errore durante la modifica dell'username", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                // L'utente non è autenticato
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(context, "Utente non autenticato", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -442,32 +427,53 @@ public class FirebaseWrapper {
             if (auth.getCurrentUser() != null) {
                 String userId = auth.getCurrentUser().getUid();
 
-                DatabaseReference usernamesRef = FirebaseDatabase.getInstance().getReference("usernames");
-                Query query = usernamesRef.orderByValue().equalTo(userId);
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+                usersRef.child(userId).child("username").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
-                            // Il nodo con l'User ID desiderato è stato trovato
-                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                String username = snapshot.getKey();
-                                Log.d("FirebaseWrapper", "Retrieved username");
-                                usernameTv.setText(username);
-                            }
+                            String username = dataSnapshot.getValue(String.class);
+                            // Imposta il valore dello username sul TextView
+                            usernameTv.setText(username);
                         } else {
-                            // Il nodo con l'User ID desiderato non è stato trovato
-                            // Gestisci il caso in cui l'User ID non esista nel database
-                            Log.w("FirebaseWrapper", "Failed to retrieve username.");
+                            // Lo username non esiste nel database
+                            Log.d("FirebaseWrapper", "Username non trovato nel database");
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        // Gestisci eventuali errori
-                        Log.w("FirebaseWrapper", "Failed to retrieve username.", databaseError.toException());
+                        // Gestisci eventuali errori di accesso al database
+                        Log.e("FirebaseWrapper", "Errore durante il recupero dello username: " + databaseError.getMessage());
                     }
                 });
+            } else {
+                // L'utente non è autenticato
+                Log.d("FirebaseWrapper", "Utente non autenticato");
             }
+        }
+
+        public static void getUsername(String userId,TextView usernameTv){
+            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+            usersRef.child(userId).child("username").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String username = dataSnapshot.getValue(String.class);
+                        // Imposta il valore dello username sul TextView
+                        usernameTv.setText(username);
+                    } else {
+                        // Lo username non esiste nel database
+                        Log.d("FirebaseWrapper", "Username non trovato nel database");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Gestisci eventuali errori di accesso al database
+                    Log.e("FirebaseWrapper", "Errore durante il recupero dello username: " + databaseError.getMessage());
+                }
+            });
         }
     }
 }

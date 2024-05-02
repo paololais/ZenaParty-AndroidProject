@@ -29,8 +29,6 @@ public class LogActivity extends AppCompatActivity{
         //hide actionbar
         Objects.requireNonNull(getSupportActionBar()).hide();
 
-        // TODO: Render fragment
-        // Render fragment
         renderFragment(true);
     }
 

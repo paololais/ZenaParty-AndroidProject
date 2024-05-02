@@ -4,13 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,11 +16,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
 import com.example.zenaparty.R;
+import com.example.zenaparty.models.FirebaseWrapper;
 import com.example.zenaparty.models.MyEvent;
-import com.example.zenaparty.models.WeatherApiService;
-import com.example.zenaparty.models.WeatherResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,19 +28,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class EventOpenedFragment extends Fragment {
 
@@ -96,7 +83,8 @@ public class EventOpenedFragment extends Fragment {
                 date.setText(event.getDate());
                 time.setText(event.getTime());
                 where.setText(event.getLocation());
-                username.setText(event.getUsername());
+
+                FirebaseWrapper.Database.getUsername(event.getUsername(),username);
 
                 eventId = String.valueOf(event.getEvent_id());
                 startTime = event.getTime();
@@ -136,11 +124,6 @@ public class EventOpenedFragment extends Fragment {
 
         btnAddToCalendar.setOnClickListener(view13 -> addEventToCalendar());
         btnMaps.setOnClickListener(view14 -> openLocationInMaps());
-
-        ProgressBar progressBar = view.findViewById(R.id.progressBar);
-        ImageView weatherIconImageView = view.findViewById(R.id.weatherIcon);
-
-        fetchWeatherDataAndDisplay(progressBar, weatherIconImageView, eventDate);
     }
 
     private void openLocationInMaps() {
@@ -254,71 +237,5 @@ public class EventOpenedFragment extends Fragment {
             e.printStackTrace();
         }
         return  System.currentTimeMillis();
-    }
-
-
-    private void fetchWeatherDataAndDisplay(ProgressBar progressBar, ImageView weatherIconImageView, String eventDate) {
-        // Replace the API URL with the correct one
-        String apiUrl = "http://api.weatherstack.com/current?access_key=9a6fb4601b803613be5365e4f973d1fa&query=genoa";
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://api.weatherstack.com/") // Base URL of the API
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-
-
-        WeatherApiService weatherApiService = retrofit.create(WeatherApiService.class);
-
-        //calculate the current date
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        String currentDate = formatter.format(date);
-        long daysBetween = 0;
-        //get days between current date and event date
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            daysBetween = ChronoUnit.DAYS.between(LocalDate.parse(currentDate, DateTimeFormatter.ofPattern("dd-MM-yyyy")),
-                    LocalDate.parse(eventDate, DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-
-        }
-
-        if (daysBetween < 0) {
-            daysBetween = 0;
-        }
-
-        if (daysBetween > 14) {
-            daysBetween = 14;
-        }
-
-        Log.d("Weather", "Days between: " + daysBetween);
-
-        Call<WeatherResponse> call = weatherApiService.getWeatherData((int) daysBetween);
-        call.enqueue(new Callback<WeatherResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<WeatherResponse> call, @NonNull Response<WeatherResponse> response) {
-                // Handle API call success (e.g., display the data)
-                // log the response
-                Log.d("Weather", "Response received: " + response.body());
-                if (response.isSuccessful() && response.body() != null && response.body().getCurrent() != null) {
-                    WeatherResponse weatherResponse = response.body();
-                    Log.d("Weather", "Weather data received: " + weatherResponse.getCurrent());
-
-                    String temperature = weatherResponse.getCurrent().getTemperature() + "°C";
-                    String weatherIconUrl = weatherResponse.getCurrent().getWeatherIcons().get(0);
-
-                    Log.d("Weather", "Temperature: " + temperature);
-                    Log.d("Weather", "Weather icon URL: " + weatherIconUrl);
-
-                    progressBar.setVisibility(View.GONE);
-
-                    Glide.with(requireContext()).load(weatherIconUrl).into(weatherIconImageView);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<WeatherResponse> call, @NonNull Throwable t) {
-                // Handle API call failure (e.g., show an error message)
-                Log.e("Weather", "Error while getting weather data", t);
-            }
-        });
     }
 }

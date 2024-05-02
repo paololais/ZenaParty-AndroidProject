@@ -74,7 +74,7 @@ public class RegisterFragment extends LogFragment {
             if (!password.getText().toString().equals(password2.getText().toString())) {
                 // TODO: Better error handling + remove this hardcoded strings
                 Toast
-                        .makeText(RegisterFragment.this.requireActivity(), "Passwords are different", Toast.LENGTH_LONG)
+                        .makeText(RegisterFragment.this.requireActivity(), R.string.passwdiff, Toast.LENGTH_LONG)
                         .show();
                 return;
             }
