@@ -27,6 +27,7 @@ public class SettingsFragment extends Fragment {
 
     RelativeLayout logoutButton;
     RelativeLayout modificaProf;
+    RelativeLayout language;
     SwitchCompat notificheSwitch;
     private SharedPreferences sharedPreferences;
     boolean notificheBool = true;
@@ -59,6 +60,7 @@ public class SettingsFragment extends Fragment {
         goBack.setOnClickListener(view1 -> requireActivity().onBackPressed());
 
         modificaProf = view.findViewById(R.id.modificaprofilo);
+        language = view.findViewById(R.id.language);
 
         modificaProf.setOnClickListener(view1 -> {
             ModificaProFiloFragment modificaProFiloFragment = new ModificaProFiloFragment();
@@ -68,6 +70,16 @@ public class SettingsFragment extends Fragment {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         });
+
+        language.setOnClickListener(view2->{
+            LanguageFragment languageFragment = new LanguageFragment();
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.flFragment, languageFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        });
+
         logoutButton.setOnClickListener(view12 -> {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(getActivity(), LogActivity.class);

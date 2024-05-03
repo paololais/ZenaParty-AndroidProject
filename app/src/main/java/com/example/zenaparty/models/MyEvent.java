@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 public class MyEvent implements Parcelable {
     Long event_id;
-    String event_name, date, location, time, type,price, description, username;
+    String event_name, date, location, time, type,price, description, userId;
 
     public MyEvent() {
     }
@@ -26,10 +26,10 @@ public class MyEvent implements Parcelable {
         type = in.readString();
         price = in.readString();
         description = in.readString();
-        username = in.readString();
+        userId = in.readString();
     }
 
-    public MyEvent(String event_name, String date, String location, String time, String type, String price, String description, String username) {
+    public MyEvent(String event_name, String date, String location, String time, String type, String price, String description, String userId) {
         this.event_id = (long) -1;
         this.event_name = event_name;
         this.date = date;
@@ -38,7 +38,7 @@ public class MyEvent implements Parcelable {
         this.type = type;
         this.price = price;
         this.description = description;
-        this.username = username;
+        this.userId = userId;
     }
 
 
@@ -85,8 +85,8 @@ public class MyEvent implements Parcelable {
         return description;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserId() {
+        return userId;
     }
 
     public void setEvent_id(Long event_id) {
@@ -113,7 +113,7 @@ public class MyEvent implements Parcelable {
         dest.writeString(type);
         dest.writeString(price);
         dest.writeString(description);
-        dest.writeString(username);
+        dest.writeString(userId);
     }
 
 }

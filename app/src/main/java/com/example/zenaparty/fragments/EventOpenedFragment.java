@@ -84,7 +84,7 @@ public class EventOpenedFragment extends Fragment {
                 time.setText(event.getTime());
                 where.setText(event.getLocation());
 
-                FirebaseWrapper.Database.getUsername(event.getUsername(),username);
+                FirebaseWrapper.Database.getUsername(event.getUserId(),username);
 
                 eventId = String.valueOf(event.getEvent_id());
                 startTime = event.getTime();

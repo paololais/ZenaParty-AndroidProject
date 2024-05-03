@@ -112,6 +112,44 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/language"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_border"
+        android:layout_marginTop="50dp">
+
+
+        <ImageView
+            android:id="@+id/language_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#0026E6"
+            android:src="@drawable/ic_language_foreground"
+            tools:ignore="ContentDescription,ImageContrastCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/language_icon"
+            android:text="@string/language"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            tools:ignore="RelativeOverlap" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/right_mode_icon"
+            tools:ignore="ContentDescription" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

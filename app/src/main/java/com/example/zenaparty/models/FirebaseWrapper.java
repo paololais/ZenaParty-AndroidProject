@@ -144,7 +144,6 @@ public class FirebaseWrapper {
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            // Check if there is a last event
                             if (dataSnapshot.exists()) {
                                 // Get the last event
                                 DataSnapshot lastEventSnapshot = dataSnapshot.getChildren().iterator().next();
@@ -159,6 +158,20 @@ public class FirebaseWrapper {
                                 }
 
                                 // Step 3: Insert a new event with the incremented "event_id" value
+                                event.setEvent_id(newEventIdValue);
+
+                                // Push the new event to the events node
+                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event);
+                                Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
+                                addToInsertedEvents(event);
+                                Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
+                                progressBar.setVisibility(View.GONE);
+                            } else{
+                                databaseReference.setValue(0);
+                                Log.d("FirebaseWrapper", "Nodo 'events' creato con successo.");
+
+                                // Step 3: Insert a new event with the incremented "event_id" value
+                                long newEventIdValue = 0L;
                                 event.setEvent_id(newEventIdValue);
 
                                 // Push the new event to the events node
