@@ -54,7 +54,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
-                android:text="@string/max_power"
                 android:textColor="@color/black"
                 android:textSize="22sp"
                 android:textStyle="bold" />

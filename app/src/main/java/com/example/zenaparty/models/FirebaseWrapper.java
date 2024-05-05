@@ -406,9 +406,10 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar){
+        public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar, TextView okUsername){
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
+            okUsername.setVisibility(View.GONE);
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -420,6 +421,7 @@ public class FirebaseWrapper {
                         .addOnSuccessListener(aVoid -> {
                             Log.d("FirebaseWrapper", "Modified username");
                             progressBar.setVisibility(View.GONE);
+                            okUsername.setVisibility(View.VISIBLE);
                             Toast.makeText(context, "Username modificato", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {

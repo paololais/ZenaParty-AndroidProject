@@ -31,45 +31,29 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <TextView
+    <RadioGroup
+        android:id="@+id/languageGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="@string/username"
-        android:textColor="@color/black"
-        android:textStyle="bold"/>
+        android:orientation="vertical">
+        <RadioButton
+            android:id="@+id/italianRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Italiano"/>
+        <RadioButton
+            android:id="@+id/englishRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inglese"/>
+        <RadioButton
+            android:id="@+id/frenchRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Francese"/>
+    </RadioGroup>
 
-    <EditText
-        android:id="@+id/usernameEt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/new_username"
-        android:minHeight="48dp"
-        android:textStyle="italic"
-        android:inputType="text"
-        android:importantForAutofill="no" />
-    <TextView
-        android:id="@+id/saveBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/round_back_secondary_100"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:text="@string/salva_modifiche"
-        android:textAllCaps="false"
-        android:textColor="@color/Primary" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:indeterminateTint="@color/black"
-        android:visibility="gone" />
 </LinearLayout>
 
 

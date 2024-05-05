@@ -40,6 +40,7 @@ public class ModificaProFiloFragment extends Fragment {
         EditText username = view.findViewById(R.id.usernameEt);
         TextView saveBtn = view.findViewById(R.id.saveBtn);
         ProgressBar progressBar = view.findViewById(R.id.progressBar);
+        TextView okUsername = view.findViewById(R.id.okTV);
 
         ImageView goBack = view.findViewById(R.id.goBackBtn);
         goBack.setOnClickListener(view1 -> requireActivity().onBackPressed());
@@ -57,7 +58,7 @@ public class ModificaProFiloFragment extends Fragment {
             checkUsernameAvailability(username.getText().toString(), isUsernameAvailable -> {
                 if (isUsernameAvailable) {
                     Log.d("ModificaProfFragment", "Attempting to change username");
-                    FirebaseWrapper.Database.modifyUsername(getContext(), username.getText().toString(), progressBar);
+                    FirebaseWrapper.Database.modifyUsername(getContext(), username.getText().toString(), progressBar, okUsername);
                 } else {
                     username.setError("Username non disponibile.");
                 }
@@ -70,18 +71,23 @@ public class ModificaProFiloFragment extends Fragment {
     }
 
     public void checkUsernameAvailability(String username, final ModificaProFiloFragment.UsernameAvailabilityCallback callback) {
-        DatabaseReference usernamesDbRef = FirebaseDatabase.getInstance().getReference("usernames");
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        usernamesDbRef.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean isUsernameAvailable = !snapshot.exists();
-                callback.onUsernameAvailabilityChecked(isUsernameAvailable);
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Lo username è già in uso
+                    callback.onUsernameAvailabilityChecked(false);
+                } else {
+                    // Lo username è disponibile
+                    callback.onUsernameAvailabilityChecked(true);
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onUsernameAvailabilityChecked(false);
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Gestione degli errori di accesso al database
             }
         });
     }
