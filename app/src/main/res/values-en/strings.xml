@@ -66,8 +66,7 @@
     <string name="add_event">Add Event</string>
     <string name="passwdiff">The passwords are different</string>
     <string name="language">Language</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="username_modificato">Username modified</string>
     <string name="lingua_modificata">Language changed</string>
+    <string name="i_suoi_eventi">His events</string>
 </resources>
