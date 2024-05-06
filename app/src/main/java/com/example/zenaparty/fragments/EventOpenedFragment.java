@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.zenaparty.R;
 import com.example.zenaparty.models.FirebaseWrapper;
@@ -71,6 +73,8 @@ public class EventOpenedFragment extends Fragment {
         ImageButton btnAddToCalendar = view.findViewById(R.id.btnAddToCalendar);
         ImageButton btnMaps = view.findViewById(R.id.btnMaps);
 
+        TextView showHostTV = view.findViewById(R.id.showHostBtn);
+
         // Recupera i dati dell'evento dall'argomento bundle
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -124,6 +128,19 @@ public class EventOpenedFragment extends Fragment {
 
         btnAddToCalendar.setOnClickListener(view13 -> addEventToCalendar());
         btnMaps.setOnClickListener(view14 -> openLocationInMaps());
+
+        //mostra organizzatore
+        showHostTV.setOnClickListener(view1 -> {
+            HostFragment hostFragment = new HostFragment();
+            Bundle args = new Bundle();
+            args.putString("hostUserId", userId);
+            hostFragment.setArguments(args);
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.flFragment, hostFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        });
     }
 
     private void openLocationInMaps() {

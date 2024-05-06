@@ -490,5 +490,84 @@ public class FirebaseWrapper {
                 }
             });
         }
+
+        public static void getHostInsertedEvents(String userId, ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
+            if (userId !=null) {
+                DatabaseReference usersReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
+                        .getReference("users");
+
+                Query query = usersReference.child(userId).child("inserted_events").orderByKey();
+
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        list.clear();
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            String eventId = dataSnapshot.getKey();
+
+                            // Cerca l'evento corrispondente nell'elenco degli eventi
+                            DatabaseReference eventsReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
+                                    .getReference("events");
+                            assert eventId != null;
+                            Query eventQuery = eventsReference.orderByChild("event_id").equalTo(Integer.parseInt(eventId));
+                            eventQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @SuppressLint("NotifyDataSetChanged")
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    for (DataSnapshot eventDataSnapshot : snapshot.getChildren()) {
+                                        MyEvent event = eventDataSnapshot.getValue(MyEvent.class);
+                                        list.add(event);
+                                    }
+
+                                    // Aggiorna l'adattatore e nascondi il progresso di caricamento
+                                    myAdapter.setEventList(list);
+                                    myAdapter.notifyDataSetChanged();
+                                    progressBar.setVisibility(View.GONE);
+
+                                    if (list.isEmpty()) {
+                                        tvNoEvents.setVisibility(View.VISIBLE);
+                                    } else {
+                                        tvNoEvents.setVisibility(View.GONE);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    progressBar.setVisibility(View.GONE);
+
+                                    if (list.isEmpty()) {
+                                        tvNoEvents.setVisibility(View.VISIBLE);
+                                    } else {
+                                        tvNoEvents.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+                        }
+                        progressBar.setVisibility(View.GONE);
+
+                        if (list.isEmpty()) {
+                            tvNoEvents.setVisibility(View.VISIBLE);
+                        } else {
+                            tvNoEvents.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        progressBar.setVisibility(View.GONE);
+
+                        if (list.isEmpty()) {
+                            tvNoEvents.setVisibility(View.VISIBLE);
+                        } else {
+                            tvNoEvents.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            } else {
+                tvNoEvents.setVisibility(View.VISIBLE);
+            }
+        }
+
     }
 }

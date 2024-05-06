@@ -5,8 +5,11 @@ import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -26,6 +29,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +45,10 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Imposta la lingua dell'applicazione
+        setAppLanguage();
+
         //display actionbar
         Objects.requireNonNull(getSupportActionBar()).show();
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -106,7 +114,19 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
                 WorkManager.getInstance(MainActivity.this).enqueue(periodicWork);
     }
 
+    private void setAppLanguage() {
+        // lingua dalle SharedPreferences
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String languageCode = preferences.getString("pref_language", null);
 
-
+        // Se il codice della lingua è stato salvato, imposta la lingua dell'applicazione
+        if (languageCode != null) {
+            Locale locale = new Locale(languageCode);
+            Locale.setDefault(locale);
+            Configuration config = new Configuration();
+            config.setLocale(locale);
+            getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+        }
+    }
 
 }

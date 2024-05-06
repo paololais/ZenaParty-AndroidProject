@@ -40,18 +40,17 @@
             android:id="@+id/italianRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
             android:text="Italiano"/>
         <RadioButton
             android:id="@+id/englishRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Inglese"/>
+            android:text="English"/>
         <RadioButton
             android:id="@+id/frenchRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Francese"/>
+            android:text="Francais"/>
     </RadioGroup>
 
 </LinearLayout>

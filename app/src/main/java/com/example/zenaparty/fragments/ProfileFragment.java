@@ -49,8 +49,8 @@ public class ProfileFragment extends Fragment {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         });
-        eventsTV.setOnClickListener(view12 -> {
 
+        eventsTV.setOnClickListener(view12 -> {
             MyEventsFragment myEventsFragment = new MyEventsFragment();
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -58,8 +58,8 @@ public class ProfileFragment extends Fragment {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         });
-        preferTV.setOnClickListener(view13 -> {
 
+        preferTV.setOnClickListener(view13 -> {
             PreferitiFragment preferitiFragment = new PreferitiFragment();
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

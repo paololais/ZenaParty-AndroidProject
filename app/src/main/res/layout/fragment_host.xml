@@ -10,24 +10,24 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
         <ImageView
-            android:id="@+id/settingsiv"
+            android:id="@+id/goBackBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:src="@drawable/ic_goback_foreground"
             app:tint="@color/black"
-            android:padding="1dp"
-            android:src="@drawable/ic_settings_foreground"
             tools:ignore="ContentDescription" />
-
         <TextView
+            android:layout_toEndOf="@id/goBackBtn"
+            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/profile"
+            android:layout_marginStart="50dp"
+            android:text="Organizzatore"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="25sp"
             android:textStyle="bold" />
     </RelativeLayout>
 
@@ -58,6 +58,14 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:stepSize="1"
+                android:progressTint="@color/GIALLO"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <TextView
                 android:id="@+id/eventstv"
@@ -69,24 +77,8 @@
                 android:gravity="center"
                 android:paddingStart="30dp"
                 android:paddingEnd="30dp"
-                android:text="@string/i_tuoi_eventi"
+                android:text="@string/i_suoi_eventi"
                 android:textColor="@color/Primary" />
-
-            <TextView
-                android:id="@+id/prefertv"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/round_back_secondary_100"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/i_tuoi_preferiti"
-                android:textAllCaps="false"
-                android:textColor="@color/Primary" />
-
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

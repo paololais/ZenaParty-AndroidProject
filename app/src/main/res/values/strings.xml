@@ -69,4 +69,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="username_modificato">Username modificato</string>
     <string name="lingua_modificata">Lingua modificata</string>
+    <string name="i_suoi_eventi">I suoi eventi</string>
 </resources>

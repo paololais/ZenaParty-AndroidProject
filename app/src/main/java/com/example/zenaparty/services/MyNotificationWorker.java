@@ -12,6 +12,8 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.zenaparty.R;
+
 public class MyNotificationWorker extends Worker {
 
     public MyNotificationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -36,7 +38,7 @@ public class MyNotificationWorker extends Worker {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "zena_party")
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("Zena Party")
-                .setContentText("Controlla i nuovi eventi disponibili per oggi")
+                .setContentText("Controlla i nuovi eventi disponibili per oggi!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
