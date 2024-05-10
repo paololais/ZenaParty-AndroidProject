@@ -68,5 +68,7 @@
     <string name="language">Langue</string>
     <string name="username_modificato">Nom d\'utilisateur modifié</string>
     <string name="lingua_modificata">Langue modifiée</string>
-    <string name="i_suoi_eventi">Ses événements</string>
+    <string name="i_suoi_eventi">Événements</string>
+    <string name="organizzatore">Organisateur</string>
+    <string name="mostra_organizzatore">Afficher l\'organisateur</string>
 </resources>

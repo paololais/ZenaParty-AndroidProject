@@ -280,12 +280,14 @@
                 android:id="@+id/showHostBtn"
                 android:layout_width="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="40dp"
                 android:layout_height="40dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:background="@drawable/round_back_secondary_100"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:text="Mostra organizzatore"
+                android:text="@string/mostra_organizzatore"
                 android:textAllCaps="false"
                 android:textColor="@color/Primary" />
         </LinearLayout>

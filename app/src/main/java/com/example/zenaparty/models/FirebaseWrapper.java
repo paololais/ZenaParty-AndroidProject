@@ -5,14 +5,13 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.example.zenaparty.adapters.EventListAdapter;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Locale;
 
 // NOTE: With firebase we have to do a network request --> We need to add the permission in the AndroidManifest.xml
 //      -> ref: https://developer.android.com/training/basics/network-ops/connecting
@@ -569,5 +569,62 @@ public class FirebaseWrapper {
             }
         }
 
+        // Metodo per ottenere la valutazione media dell'utente host
+        public static void getHostRating(String hostUserId, RatingBar ratingBar, TextView ratingValueTV, TextView numberOfReviewsTV) {
+            DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("users").child(hostUserId).child("ratings");
+            ratingsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    float totalRating = 0;
+                    int ratingCount = 0;
+
+                    // Itera su tutti i nodi dei rating
+                    for (DataSnapshot ratingSnapshot : snapshot.getChildren()) {
+                        // Ottieni il valore del rating e aggiungilo al totale
+                        Float rating = ratingSnapshot.getValue(Float.class);
+                        if (rating != null) {
+                            // Add the rating to the total and increment the count
+                            totalRating += rating;
+                            ratingCount++;
+                        }
+                    }
+                    String ratingCountText = "(" + ratingCount + ")";
+                    numberOfReviewsTV.setText(ratingCountText);
+                    // Calcola la media dei rating
+                    float averageRating = (ratingCount > 0) ? (float) totalRating / ratingCount : 0;
+                    ratingBar.setRating(averageRating);
+
+                    String formattedRating = String.format(Locale.getDefault(), "%.1f", averageRating);
+                    ratingValueTV.setText(formattedRating);
+
+                    Log.d("FirebaseWrapper", "Average Rating: " + averageRating);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Gestisci eventuali errori durante il recupero dei dati
+                    Log.e("FirebaseWrapper", "Error retrieving ratings: " + error.getMessage());
+                }
+            });
+        }
+
+        public static void sendNewRating(String userId, float newRating){
+            if(FirebaseAuth.getInstance().getCurrentUser()!= null){
+                String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                // Ottieni il riferimento al nodo "ratings" dell'utente nel database Firebase
+                DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("ratings");
+
+                // Aggiorna il nodo "ratings" con il nuovo rating
+                ratingsRef.child(currentUserId).setValue(newRating)
+                        .addOnSuccessListener(aVoid -> {
+                            // Gestisci il successo dell'aggiornamento del rating
+                            Log.d("FirebaseWrapper", "New rating sent successfully");
+                        })
+                        .addOnFailureListener(e -> {
+                            // Gestisci eventuali errori durante l'aggiornamento del rating
+                            Log.e("FirebaseWrapper", "Error sending new rating: " + e.getMessage());
+                        });
+            }
+        }
     }
 }

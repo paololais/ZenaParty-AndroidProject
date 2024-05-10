@@ -98,49 +98,61 @@ public class EventOpenedFragment extends Fragment {
 
                 //set img based on event type
                 setImage(imgEvent, event);
+                String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+                DatabaseReference favoritesRef = FirebaseDatabase.getInstance()
+                        .getReference("users")
+                        .child(userId)
+                        .child("preferiti");
+
+                //check se la key eventId esiste nel database e se è true/false
+                //necessario per impostare elemento grafico
+                setBtnFavoriteValue(btnFavorite, favoritesRef);
+
+                btnClose.setOnClickListener(view1 -> requireActivity().onBackPressed());
+
+                btnFavorite.setOnClickListener(view12 -> {
+                    if(!isFavorite){
+                        isFavorite = true;
+                        favoritesRef.child(eventId).setValue(true);
+                        btnFavorite.setImageResource(R.drawable.ic_favorite_true_foreground);
+
+                    } else {
+                        isFavorite = false;
+                        favoritesRef.child(eventId).setValue(false);
+                        btnFavorite.setImageResource(R.drawable.ic_favorite_foreground);
+                    }
+                });
+
+                btnAddToCalendar.setOnClickListener(view13 -> addEventToCalendar());
+                btnMaps.setOnClickListener(view14 -> openLocationInMaps());
+
+                //mostra organizzatore
+                showHostTV.setOnClickListener(view1 -> {
+                    HostFragment hostFragment = new HostFragment();
+                    Bundle args = new Bundle();
+                    args.putString("hostUserId", event.getUserId());
+                    hostFragment.setArguments(args);
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.flFragment, hostFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                });
+                username.setOnClickListener(view1 -> {
+                    HostFragment hostFragment = new HostFragment();
+                    Bundle args = new Bundle();
+                    args.putString("hostUserId", event.getUserId());
+                    hostFragment.setArguments(args);
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.flFragment, hostFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                });
             }
         }
 
-        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        DatabaseReference favoritesRef = FirebaseDatabase.getInstance()
-                .getReference("users")
-                .child(userId)
-                .child("preferiti");
-        
-        //check se la key eventId esiste nel database e se è true/false
-        //necessario per impostare elemento grafico
-        setBtnFavoriteValue(btnFavorite, favoritesRef);
 
-        btnClose.setOnClickListener(view1 -> requireActivity().onBackPressed());
-
-        btnFavorite.setOnClickListener(view12 -> {
-            if(!isFavorite){
-                isFavorite = true;
-                favoritesRef.child(eventId).setValue(true);
-                btnFavorite.setImageResource(R.drawable.ic_favorite_true_foreground);
-
-            } else {
-                isFavorite = false;
-                favoritesRef.child(eventId).setValue(false);
-                btnFavorite.setImageResource(R.drawable.ic_favorite_foreground);
-            }
-        });
-
-        btnAddToCalendar.setOnClickListener(view13 -> addEventToCalendar());
-        btnMaps.setOnClickListener(view14 -> openLocationInMaps());
-
-        //mostra organizzatore
-        showHostTV.setOnClickListener(view1 -> {
-            HostFragment hostFragment = new HostFragment();
-            Bundle args = new Bundle();
-            args.putString("hostUserId", userId);
-            hostFragment.setArguments(args);
-            FragmentManager fragmentManager = getParentFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.flFragment, hostFragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
-        });
     }
 
     private void openLocationInMaps() {

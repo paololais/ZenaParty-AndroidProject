@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:text="Organizzatore"
+            android:text="@string/organizzatore"
             android:textColor="@color/black"
             android:textSize="25sp"
             android:textStyle="bold" />
@@ -57,15 +57,33 @@
                 android:textColor="@color/black"
                 android:textSize="22sp"
                 android:textStyle="bold" />
-
-            <RatingBar
-                android:id="@+id/ratingBar"
-                android:stepSize="1"
-                android:progressTint="@color/GIALLO"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                tools:ignore="SpeakableTextPresentCheck" />
+                android:gravity="center"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/meanValueTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    android:stepSize="1"
+                    android:progressTint="@color/GIALLO"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    tools:ignore="SpeakableTextPresentCheck" />
+                <TextView
+                    android:id="@+id/numberReviewsTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/eventstv"

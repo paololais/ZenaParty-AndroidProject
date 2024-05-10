@@ -68,5 +68,7 @@
     <string name="language">Language</string>
     <string name="username_modificato">Username modified</string>
     <string name="lingua_modificata">Language changed</string>
-    <string name="i_suoi_eventi">His events</string>
+    <string name="i_suoi_eventi">Events</string>
+    <string name="organizzatore">Host</string>
+    <string name="mostra_organizzatore">Show host</string>
 </resources>
