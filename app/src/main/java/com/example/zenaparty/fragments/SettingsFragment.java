@@ -1,5 +1,6 @@
 package com.example.zenaparty.fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -81,10 +82,18 @@ public class SettingsFragment extends Fragment {
         });
 
         logoutButton.setOnClickListener(view12 -> {
-            FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(getActivity(), LogActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setMessage(R.string.logout_dialog)
+                    .setPositiveButton("Ok", (dialog, which) -> {
+                        FirebaseAuth.getInstance().signOut();
+                        Intent intent = new Intent(getActivity(), LogActivity.class);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                    })
+                    .show();
+
         });
 
         notificheSwitch.setChecked(sharedPreferences.getBoolean("Notifiche", true));

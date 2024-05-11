@@ -70,4 +70,8 @@
     <string name="i_suoi_eventi">Eventi</string>
     <string name="organizzatore">Organizzatore</string>
     <string name="mostra_organizzatore">Mostra organizzatore</string>
+    <string name="event_added">Evento aggiunto con successo</string>
+    <string name="rimozione_evento">Sei sicuro di voler rimuovere questo evento?</string>
+    <string name="conferma_rimozione">Conferma rimozione</string>
+    <string name="logout_dialog">Sei sicuro di voler fare il logout?</string>
 </resources>

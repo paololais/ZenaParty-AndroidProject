@@ -71,4 +71,8 @@
     <string name="i_suoi_eventi">Événements</string>
     <string name="organizzatore">Organisateur</string>
     <string name="mostra_organizzatore">Afficher l\'organisateur</string>
+    <string name="event_added">Événement ajouté avec succès</string>
+    <string name="rimozione_evento">Êtes-vous sûr de vouloir supprimer cet événement?</string>
+    <string name="conferma_rimozione">Confirmer la suppression</string>
+    <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter</string>
 </resources>

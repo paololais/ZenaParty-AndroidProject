@@ -1,7 +1,11 @@
 package com.example.zenaparty.models;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -11,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.zenaparty.R;
 import com.example.zenaparty.adapters.EventListAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -139,6 +144,12 @@ public class FirebaseWrapper {
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
 
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage(R.string.event_added)
+                    .setPositiveButton("OK", (dialog, id) -> {
+                    });
+            AlertDialog dialog = builder.create();
+
             databaseReference.orderByChild("timestamp")
                     .limitToLast(1)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -162,10 +173,12 @@ public class FirebaseWrapper {
 
                                 // Push the new event to the events node
                                 databaseReference.child(String.valueOf(newEventIdValue)).setValue(event);
-                                Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
                                 addToInsertedEvents(event);
                                 Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
                                 progressBar.setVisibility(View.GONE);
+
+                                dialog.show();
                             } else{
                                 databaseReference.setValue(0);
                                 Log.d("FirebaseWrapper", "Nodo 'events' creato con successo.");
@@ -176,10 +189,12 @@ public class FirebaseWrapper {
 
                                 // Push the new event to the events node
                                 databaseReference.child(String.valueOf(newEventIdValue)).setValue(event);
-                                Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
                                 addToInsertedEvents(event);
                                 Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
                                 progressBar.setVisibility(View.GONE);
+
+                                dialog.show();
                             }
                         }
 
@@ -591,7 +606,7 @@ public class FirebaseWrapper {
                     String ratingCountText = "(" + ratingCount + ")";
                     numberOfReviewsTV.setText(ratingCountText);
                     // Calcola la media dei rating
-                    float averageRating = (ratingCount > 0) ? (float) totalRating / ratingCount : 0;
+                    float averageRating = (ratingCount > 0) ? totalRating / ratingCount : 0;
                     ratingBar.setRating(averageRating);
 
                     String formattedRating = String.format(Locale.getDefault(), "%.1f", averageRating);

@@ -29,7 +29,7 @@
     <string name="sport">Sports</string>
     <string name="ok">OK</string>
     <string name="altro">Other</string>
-    <string name="annulla">CANCEL</string>
+    <string name="annulla">Cancel</string>
     <string name="button_save">Save</string>
     <string name="button_add_to_calendar">Add to calendar</string>
     <string name="button_close">Close</string>
@@ -71,4 +71,8 @@
     <string name="i_suoi_eventi">Events</string>
     <string name="organizzatore">Host</string>
     <string name="mostra_organizzatore">Show host</string>
+    <string name="event_added">Event added successfully</string>
+    <string name="rimozione_evento">Are you sure you want to remove this event?</string>
+    <string name="conferma_rimozione">Confirm removal</string>
+    <string name="logout_dialog">Are you sure you want to logout?</string>
 </resources>

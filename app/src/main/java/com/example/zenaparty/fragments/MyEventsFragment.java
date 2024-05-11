@@ -1,6 +1,7 @@
 package com.example.zenaparty.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -87,15 +88,20 @@ public class MyEventsFragment extends Fragment  implements EventListInterface {
     @Override
     public void onEventRemoved(boolean success, int position) {
         if(success){
-            myAdapter.getList().remove(position);
-            myAdapter.notifyDataSetChanged();
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle(R.string.conferma_rimozione)
+                    .setMessage(R.string.rimozione_evento)
+                    .setPositiveButton("Ok", (dialog, which) -> {
+                        // Rimuovi l'evento
+                        myAdapter.getList().remove(position);
+                        myAdapter.notifyDataSetChanged();
 
-            if(list.isEmpty()){
-                tvNoEvents.setVisibility(View.VISIBLE);
-            }
-        }
-        else {
-            return;
+                        if (list.isEmpty()) {
+                            tvNoEvents.setVisibility(View.VISIBLE);
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         }
     }
 }
