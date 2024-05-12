@@ -74,5 +74,5 @@
     <string name="event_added">Événement ajouté avec succès</string>
     <string name="rimozione_evento">Êtes-vous sûr de vouloir supprimer cet événement?</string>
     <string name="conferma_rimozione">Confirmer la suppression</string>
-    <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter</string>
+    <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter?</string>
 </resources>

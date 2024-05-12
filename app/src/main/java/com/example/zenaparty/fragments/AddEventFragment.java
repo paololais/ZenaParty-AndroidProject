@@ -1,5 +1,7 @@
 package com.example.zenaparty.fragments;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -21,10 +24,13 @@ import com.example.zenaparty.models.FirebaseWrapper;
 import com.example.zenaparty.models.MyEvent;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
 
 public class AddEventFragment extends Fragment {
+    private TextView dateTextView;
+    private TextView timeTextView;
 
     @Override
     public View onCreateView( LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
@@ -39,71 +45,78 @@ public class AddEventFragment extends Fragment {
         //create event listener for button to add event
         Button btnCreateEvent = view.findViewById(R.id.addEventButton);
 
+        dateTextView = view.findViewById(R.id.tvSelectDate);
+        timeTextView = view.findViewById(R.id.tvselectTime);
+        // Imposta la data predefinita
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // Mese è zero-based, quindi aggiungi 1
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        String defaultDate = String.format(Locale.getDefault(), "%02d-%02d-%04d", dayOfMonth, month, year);
+        dateTextView.setText(defaultDate);
+
+// Imposta l'ora predefinita
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        String defaultTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+        timeTextView.setText(defaultTime);
+        dateTextView.setOnClickListener(v -> showDatePicker());
+        timeTextView.setOnClickListener(v -> showTimePicker());
+
+
         btnCreateEvent.setOnClickListener(v -> {
             //get all the data from the form
-            String eventName = ((EditText)view.findViewById(R.id.addEventName)).getText().toString();
-            String eventDescription = ((EditText)view.findViewById(R.id.addEventDescription)).getText().toString();
-            String eventLocation = ((EditText)view.findViewById(R.id.addEventAddress)).getText().toString();
+            String eventName = ((EditText) view.findViewById(R.id.addEventName)).getText().toString();
+            String eventDescription = ((EditText) view.findViewById(R.id.addEventDescription)).getText().toString();
+            String eventLocation = ((EditText) view.findViewById(R.id.addEventAddress)).getText().toString();
 
-            DatePicker datePicker = view.findViewById(R.id.datePicker);
-            int day = datePicker.getDayOfMonth();
-            int month = datePicker.getMonth() + 1;  // Months in DatePicker are zero-based, so add 1
-            int year = datePicker.getYear();
+            String eventDate = dateTextView.getText().toString();
+            String eventTime = timeTextView.getText().toString();
 
-
-            Log.d("AddEventFragment", "Date: " + day + "-" + month + "-" + year);
-
-            //use Locale to get date in the format dd-mm-yyyy
-            String eventDate = String.format(Locale.getDefault(),"%02d-%02d-%04d", day, month, year);
-            //get date from date picker
-
-            Log.d("AddEventFragment", "Date: " + eventDate);
-
-            TimePicker timePicker = view.findViewById(R.id.timePicker);
-            int hour = timePicker.getHour();
-            int minute = timePicker.getMinute();
-
-            Log.d("AddEventFragment", "Time: " + hour + ":" + minute);
-
-            String eventTime = String.format(Locale.getDefault(),"%02d:%02d", hour, minute);
-
-
-            Log.d("AddEventFragment", "Time: " + eventTime);
-
-            Spinner addEventPlaceSpinner = view.findViewById(R.id.addEventPlace);
-            String eventType = addEventPlaceSpinner.getSelectedItem().toString();
-
-
+            String eventType = ((Spinner) view.findViewById(R.id.addEventPlace)).getSelectedItem().toString();
 
             String eventHost = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-            String eventPrice = ((EditText)view.findViewById(R.id.addEventPrice)).getText().toString();
+            String eventPrice = ((EditText) view.findViewById(R.id.addEventPrice)).getText().toString();
 
-
-            Log.d("AddEventFragment", eventHost);
-
-            //if any of the fields are empty, return
-            if(eventName.isEmpty() || eventDescription.isEmpty() || eventLocation.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || eventType.isEmpty() || Objects.requireNonNull(eventHost).isEmpty()) {
-                //display error message
-                Log.d("AddEventFragment", "One of the fields is empty");
-                Toast.makeText(getContext(),"One of the fields is empty", Toast.LENGTH_LONG).show();
-
+            if (eventName.isEmpty() || eventDescription.isEmpty() || eventLocation.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || eventType.isEmpty() || Objects.requireNonNull(eventHost).isEmpty()) {
+                Toast.makeText(getContext(), "One of the fields is empty", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            Log.d("AddEventFragment", "Attempting to create event object");
+            MyEvent event = new MyEvent(eventName, eventDate, eventLocation, eventTime, eventType, eventPrice, eventDescription, eventHost);
 
-            //create event object
-            MyEvent event = new MyEvent(eventName, eventDate,  eventLocation, eventTime, eventType, eventPrice, eventDescription, eventHost);
-
-            //push with firebase
-            //debug
-            Log.d("AddEventFragment", "Attempting to add event to database");
-
-            //push to database
             FirebaseWrapper.Database.saveEvent(event, getContext(), progressBar);
         });
-
-
     }
 
+    private void showDatePicker() {
+        DatePickerDialog.OnDateSetListener dateSetListener = (view, year, month, dayOfMonth) -> {
+            String selectedDate = String.format(Locale.getDefault(), "%02d-%02d-%04d", dayOfMonth, month + 1, year);
+            dateTextView.setText(selectedDate);
+        };
+
+        // Impostazione della data attuale come predefinita nel DatePickerDialog
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), dateSetListener, year, month, day);
+        datePickerDialog.show();
+    }
+
+    private void showTimePicker() {
+        TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute) -> {
+            String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+            timeTextView.setText(selectedTime);
+        };
+
+        // Impostazione dell'ora attuale come predefinita nel TimePickerDialog
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), timeSetListener, hour, minute, true);
+        timePickerDialog.show();
+    }
 }
