@@ -74,4 +74,5 @@
     <string name="rimozione_evento">Sei sicuro di voler rimuovere questo evento?</string>
     <string name="conferma_rimozione">Conferma rimozione</string>
     <string name="logout_dialog">Sei sicuro di voler fare il logout?</string>
+    <string name="remove_review">Sei sicuro di voler rimuovere la tua recensione?</string>
 </resources>

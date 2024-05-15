@@ -12,8 +12,6 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.example.zenaparty.R;
-
 public class MyNotificationWorker extends Worker {
 
     public MyNotificationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {

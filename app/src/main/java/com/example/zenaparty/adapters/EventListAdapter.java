@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.MyViewHolder> {
     final Context context;
     ArrayList<MyEvent> list;
-    boolean visibility;
+    final boolean visibility;
     private final EventListInterface eventListInterface;
 
     public EventListAdapter(Context context, ArrayList<MyEvent> list, EventListInterface eventListInterface,boolean visibility) {
@@ -61,8 +61,12 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.MyVi
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView event_name, time, location, type, price;
-        ImageButton btnDelete;
+        final TextView event_name;
+        final TextView time;
+        final TextView location;
+        final TextView type;
+        final TextView price;
+        final ImageButton btnDelete;
 
         public MyViewHolder(@NonNull View itemView, EventListInterface eventListInterface) {
             super(itemView);

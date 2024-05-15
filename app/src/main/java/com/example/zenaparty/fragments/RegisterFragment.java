@@ -108,19 +108,25 @@ public class RegisterFragment extends LogFragment {
     }
 
     public void checkUsernameAvailability(String username, final UsernameAvailabilityCallback callback) {
-        DatabaseReference usernamesDbRef = FirebaseDatabase.getInstance().getReference("usernames");
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        usernamesDbRef.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean isUsernameAvailable = !snapshot.exists();
-                callback.onUsernameAvailabilityChecked(isUsernameAvailable);
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Lo username è già in uso
+                    callback.onUsernameAvailabilityChecked(false);
+                } else {
+                    // Lo username è disponibile
+                    callback.onUsernameAvailabilityChecked(true);
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onUsernameAvailabilityChecked(false);
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Gestione degli errori di accesso al database
             }
         });
     }
+
 }

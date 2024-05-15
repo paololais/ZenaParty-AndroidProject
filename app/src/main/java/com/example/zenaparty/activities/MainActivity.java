@@ -37,9 +37,9 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
     FirebaseAuth auth;
     FirebaseUser user;
     BottomNavigationView bottomNavigationView;
-    HomeFragment homeFragment = new HomeFragment();
-    AddEventFragment addEventFragment = new AddEventFragment();
-    ProfileFragment profileFragment = new ProfileFragment();
+    final HomeFragment homeFragment = new HomeFragment();
+    final AddEventFragment addEventFragment = new AddEventFragment();
+    final ProfileFragment profileFragment = new ProfileFragment();
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {

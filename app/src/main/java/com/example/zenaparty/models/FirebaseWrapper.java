@@ -1,13 +1,11 @@
 package com.example.zenaparty.models;
 
-import static java.security.AccessController.getContext;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -131,6 +129,9 @@ public class FirebaseWrapper {
 
     }
 
+    public interface OnReviewCheckListener {
+        void onReviewChecked(boolean userReviewed);
+    }
 
     //database
     public static class Database {
@@ -172,14 +173,20 @@ public class FirebaseWrapper {
                                 event.setEvent_id(newEventIdValue);
 
                                 // Push the new event to the events node
-                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event);
-                                //Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
-                                addToInsertedEvents(event);
-                                Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
-                                progressBar.setVisibility(View.GONE);
+                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event)
+                                        .addOnSuccessListener(aVoid -> {
+                                            addToInsertedEvents(event);
+                                            Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
+                                            progressBar.setVisibility(View.GONE);
 
-                                dialog.show();
-                            } else{
+                                            dialog.show();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("FirebaseWrapper", "Error inserting new event: " + e.getMessage());
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(context, "Error inserting new event", Toast.LENGTH_SHORT).show();
+                                        });
+                            } else {
                                 databaseReference.setValue(0);
                                 Log.d("FirebaseWrapper", "Nodo 'events' creato con successo.");
 
@@ -188,13 +195,17 @@ public class FirebaseWrapper {
                                 event.setEvent_id(newEventIdValue);
 
                                 // Push the new event to the events node
-                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event);
-                                //Toast.makeText(context, "Evento aggiunto", Toast.LENGTH_SHORT).show();
-                                addToInsertedEvents(event);
-                                Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
-                                progressBar.setVisibility(View.GONE);
-
-                                dialog.show();
+                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event).addOnSuccessListener(aVoid -> {
+                                            addToInsertedEvents(event);
+                                            Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
+                                            progressBar.setVisibility(View.GONE);
+                                            dialog.show();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("FirebaseWrapper", "Error inserting new event: " + e.getMessage());
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(context, "Error inserting new event", Toast.LENGTH_SHORT).show();
+                                        });
                             }
                         }
 
@@ -224,8 +235,8 @@ public class FirebaseWrapper {
 
                         list.clear();
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            if (dataSnapshot.getValue()==null) continue;
-                            if (!(boolean)dataSnapshot.getValue()) continue;
+                            if (dataSnapshot.getValue() == null) continue;
+                            if (!(boolean) dataSnapshot.getValue()) continue;
 
                             // Ottieni l'ID dell'evento preferito dall'utente
                             String eventId = dataSnapshot.getKey();
@@ -368,7 +379,7 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void addToInsertedEvents(MyEvent myEvent){
+        public static void addToInsertedEvents(MyEvent myEvent) {
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -385,7 +396,7 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void removeFromInsertedEvents(EventListInterface listInterface, MyEvent myEvent, int position){
+        public static void removeFromInsertedEvents(EventListInterface listInterface, MyEvent myEvent, int position) {
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -399,16 +410,15 @@ public class FirebaseWrapper {
                 String eventId = String.valueOf(myEvent.getEvent_id());
 
                 insertedEventsRef.child(eventId).removeValue((error, ref) -> {
-                    if (error ==null){
+                    if (error == null) {
                         DatabaseReference eventsRef = FirebaseDatabase.getInstance()
                                 .getReference("events")
                                 .child(eventId);
                         eventsRef.removeValue((error1, ref1) -> {
-                            if(error1 == null){
+                            if (error1 == null) {
                                 listInterface.onEventRemoved(true, position);
                                 Log.d("firebase wrapper", "removed from inserted events");
-                            }
-                            else {
+                            } else {
                                 listInterface.onEventRemoved(false, position);
                                 Log.d("firebase wrapper", "error removed from inserted events");
                             }
@@ -421,7 +431,7 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar, TextView okUsername){
+        public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar, TextView okUsername) {
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
             okUsername.setVisibility(View.GONE);
@@ -451,7 +461,7 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void getAndSetUsername(TextView usernameTv){
+        public static void getAndSetUsername(TextView usernameTv) {
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
             if (auth.getCurrentUser() != null) {
@@ -483,7 +493,7 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void getUsername(String userId,TextView usernameTv){
+        public static void getUsername(String userId, TextView usernameTv) {
             DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
             usersRef.child(userId).child("username").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -507,7 +517,7 @@ public class FirebaseWrapper {
         }
 
         public static void getHostInsertedEvents(String userId, ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
-            if (userId !=null) {
+            if (userId != null) {
                 DatabaseReference usersReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
                         .getReference("users");
 
@@ -623,23 +633,89 @@ public class FirebaseWrapper {
             });
         }
 
-        public static void sendNewRating(String userId, float newRating){
-            if(FirebaseAuth.getInstance().getCurrentUser()!= null){
+        public static void sendNewRating(String userId, RatingBar ratingBar, TextView ratingValueTV, TextView numberOfReviewsTV, ImageButton deleteReviewBtn) {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                float newRating = ratingBar.getRating();
                 String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                // Ottieni il riferimento al nodo "ratings" dell'utente nel database Firebase
                 DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("ratings");
 
-                // Aggiorna il nodo "ratings" con il nuovo rating
                 ratingsRef.child(currentUserId).setValue(newRating)
                         .addOnSuccessListener(aVoid -> {
-                            // Gestisci il successo dell'aggiornamento del rating
                             Log.d("FirebaseWrapper", "New rating sent successfully");
+                            getHostRating(userId, ratingBar, ratingValueTV, numberOfReviewsTV);
+                            deleteReviewBtn.setVisibility(View.VISIBLE);
                         })
                         .addOnFailureListener(e -> {
-                            // Gestisci eventuali errori durante l'aggiornamento del rating
                             Log.e("FirebaseWrapper", "Error sending new rating: " + e.getMessage());
                         });
             }
         }
+
+        public static void removeReview(String hostUserId, RatingBar ratingBar, TextView ratingValueTV, TextView numberOfReviewsTV, ImageButton deleteReviewBtn) {
+            // Se l'utente conferma la rimozione, procedi con la logica di rimozione
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                // Ottieni l'ID dell'utente corrente
+                String currentUserId = currentUser.getUid();
+                DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("users")
+                        .child(hostUserId).child("ratings").child(currentUserId);
+
+                ratingsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            // La recensione esiste, rimuovila
+                            ratingsRef.removeValue()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("FirebaseWrapper", "Review removed successfully");
+                                        getHostRating(hostUserId,ratingBar,ratingValueTV,numberOfReviewsTV);
+                                        deleteReviewBtn.setVisibility(View.GONE);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("FirebaseWrapper", "Error removing review: " + e.getMessage());
+                                    });
+                        } else {
+                            // Non esiste una recensione dell'utente corrente per l'host
+                            Log.d("FirebaseWrapper", "No review found for current user");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Gestisci eventuali errori durante il recupero dei dati
+                        Log.e("FirebaseWrapper", "Error retrieving review: " + error.getMessage());
+                    }
+                });
+            } else {
+                // L'utente corrente non è autenticato
+                Log.d("FirebaseWrapper", "User not authenticated");
+            }
+
+        }
+        public static void checkIfUserReviewedHost(String hostUserId, String currentUserUid, OnReviewCheckListener listener) {
+            DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("users").child(hostUserId).child("ratings");
+
+            // Controlla se l'utente corrente ha inserito una recensione per l'host selezionato
+            ratingsRef.child(currentUserUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    // Se l'utente ha inserito una recensione, restituisci true al listener
+                    if (snapshot.exists()) {
+                        listener.onReviewChecked(true);
+                    } else {
+                        // Altrimenti, restituisci false al listener
+                        listener.onReviewChecked(false);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Gestisci eventuali errori durante il recupero dei dati
+                    Log.e("FirebaseWrapper", "Error checking review: " + error.getMessage());
+                }
+            });
+        }
+
     }
 }

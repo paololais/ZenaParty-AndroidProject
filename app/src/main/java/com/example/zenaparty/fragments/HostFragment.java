@@ -1,6 +1,14 @@
 package com.example.zenaparty.fragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,18 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
-
 import com.example.zenaparty.R;
 import com.example.zenaparty.models.FirebaseWrapper;
 import com.google.firebase.auth.FirebaseAuth;
-
-import org.w3c.dom.Text;
 
 
 public class HostFragment extends Fragment {
@@ -45,12 +44,12 @@ public class HostFragment extends Fragment {
 
         TextView eventsTV = view.findViewById(R.id.eventstv);
 
-        // Recupera l'ID dell'utente host dall'argomento del Bundle
+        ImageButton deleteReviewBtn= view.findViewById(R.id.btnDelete);
+
         Bundle args = getArguments();
         if (args != null) {
             String hostUserId = args.getString("hostUserId");
 
-            // Recupera le informazioni dell'utente host dal database Firebase
             FirebaseWrapper.Database.getUsername(hostUserId, username);
 
             eventsTV.setOnClickListener(view12 -> {
@@ -76,9 +75,28 @@ public class HostFragment extends Fragment {
                 }
             }
             ratingBar.setOnRatingBarChangeListener((ratingBar1, v, b) -> {
-                float newRating = ratingBar.getRating();
-                FirebaseWrapper.Database.sendNewRating(hostUserId, newRating);
-                FirebaseWrapper.Database.getHostRating(hostUserId, ratingBar, ratingValueTV, numberOfReviewsTV);
+                if(b){
+                    FirebaseWrapper.Database.sendNewRating(hostUserId, ratingBar, ratingValueTV, numberOfReviewsTV, deleteReviewBtn);
+                }
+            });
+
+            deleteReviewBtn.setVisibility(View.GONE); // Nascondi il pulsante di default
+            // Verifica se l'utente corrente ha inserito una recensione per l'host selezionato
+            FirebaseWrapper.Database.checkIfUserReviewedHost(hostUserId, auth.getCurrentUser().getUid(), userReviewed -> {
+                if (userReviewed) {
+                    // Se l'utente ha inserito una recensione, mostra il pulsante deleteReviewBtn
+                    deleteReviewBtn.setVisibility(View.VISIBLE);
+                }
+            });
+            deleteReviewBtn.setOnClickListener(v-> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage(R.string.remove_review)
+                        .setPositiveButton("Ok", (dialog, which) -> FirebaseWrapper.Database.removeReview(hostUserId,ratingBar, ratingValueTV, numberOfReviewsTV, deleteReviewBtn))
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Se l'utente sceglie di non rimuovere la recensione, chiudi il dialog
+                            dialog.dismiss();
+                        })
+                        .show();
             });
         }
     }

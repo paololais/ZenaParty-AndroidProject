@@ -2,18 +2,17 @@ package com.example.zenaparty.fragments;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -65,6 +64,9 @@ public class AddEventFragment extends Fragment {
 
 
         btnCreateEvent.setOnClickListener(v -> {
+            // hide keyboard
+            InputMethodManager manager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
             //get all the data from the form
             String eventName = ((EditText) view.findViewById(R.id.addEventName)).getText().toString();
             String eventDescription = ((EditText) view.findViewById(R.id.addEventDescription)).getText().toString();
