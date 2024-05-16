@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String languageCode = preferences.getString("pref_language", null);
 
-        // Se il codice della lingua è stato salvato, imposta la lingua dell'applicazione
         if (languageCode != null) {
             Locale locale = new Locale(languageCode);
             Locale.setDefault(locale);

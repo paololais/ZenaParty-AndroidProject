@@ -6,19 +6,14 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 public class MyEvent implements Parcelable {
-    Long event_id;
-    String event_name, date, location, time, type,price, description, userId;
+    String event_id, event_name, date, location, time, type,price, description, userId;
 
     public MyEvent() {
     }
 
     // Implementa Parcelable
     protected MyEvent(Parcel in) {
-        if (in.readByte() == 0) {
-            event_id = null;
-        } else {
-            event_id = in.readLong();
-        }
+        event_id = in.readString();
         event_name = in.readString();
         date = in.readString();
         location = in.readString();
@@ -29,8 +24,8 @@ public class MyEvent implements Parcelable {
         userId = in.readString();
     }
 
-    public MyEvent(String event_name, String date, String location, String time, String type, String price, String description, String userId) {
-        this.event_id = (long) -1;
+    public MyEvent(String event_id, String event_name, String date, String location, String time, String type, String price, String description, String userId) {
+        this.event_id = event_id;
         this.event_name = event_name;
         this.date = date;
         this.location = location;
@@ -55,7 +50,7 @@ public class MyEvent implements Parcelable {
     };
 
 
-    public Long getEvent_id() {
+    public String getEvent_id() {
         return event_id;
     }
 
@@ -89,7 +84,7 @@ public class MyEvent implements Parcelable {
         return userId;
     }
 
-    public void setEvent_id(Long event_id) {
+    public void setEvent_id(String event_id) {
         this.event_id = event_id;
     }
 
@@ -100,12 +95,7 @@ public class MyEvent implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        if (event_id == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeLong(event_id);
-        }
+        dest.writeString(event_id);
         dest.writeString(event_name);
         dest.writeString(date);
         dest.writeString(location);

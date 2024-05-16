@@ -24,11 +24,12 @@ import com.example.zenaparty.adapters.EventListAdapter;
 import com.example.zenaparty.models.EventListInterface;
 import com.example.zenaparty.models.FirebaseWrapper;
 import com.example.zenaparty.models.MyEvent;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
 
-public class MyEventsFragment extends Fragment  implements EventListInterface {
+public class MyEventsFragment extends Fragment implements EventListInterface {
     ProgressBar progressBar;
     RecyclerView recyclerView;
     EventListAdapter myAdapter;
@@ -56,9 +57,14 @@ public class MyEventsFragment extends Fragment  implements EventListInterface {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         list = new ArrayList<>();
-        myAdapter = new EventListAdapter(getContext(),list, this,true);
+        myAdapter = new EventListAdapter(getContext(), list, this, true);
         recyclerView.setAdapter(myAdapter);
-        FirebaseWrapper.Database.getUserEventsInserted(list, myAdapter, progressBar, tvNoEvents);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            String currentUserId = auth.getCurrentUser().getUid();
+            FirebaseWrapper.Database.getUserInsertedEvents(currentUserId, list, myAdapter, progressBar, tvNoEvents);
+        }
     }
 
     @Override
@@ -81,27 +87,20 @@ public class MyEventsFragment extends Fragment  implements EventListInterface {
     @Override
     public void onButtonActionClick(int position) {
         MyEvent selectedEvent = myAdapter.getList().get(position);
-        FirebaseWrapper.Database.removeFromInsertedEvents(this, selectedEvent, position);
+        FirebaseWrapper.Database.removeFromInsertedEvents(this, requireContext(), selectedEvent, position);
     }
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onEventRemoved(boolean success, int position) {
-        if(success){
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle(R.string.conferma_rimozione)
-                    .setMessage(R.string.rimozione_evento)
-                    .setPositiveButton("Ok", (dialog, which) -> {
-                        // Rimuovi l'evento
-                        myAdapter.getList().remove(position);
-                        myAdapter.notifyDataSetChanged();
+        if (success) {
+            // Rimuovi l'evento
+            myAdapter.getList().remove(position);
+            myAdapter.notifyDataSetChanged();
 
-                        if (list.isEmpty()) {
-                            tvNoEvents.setVisibility(View.VISIBLE);
-                        }
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
+            if (list.isEmpty()) {
+                tvNoEvents.setVisibility(View.VISIBLE);
+            }
         }
     }
 }

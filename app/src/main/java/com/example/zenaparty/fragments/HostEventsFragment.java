@@ -61,7 +61,7 @@ public class HostEventsFragment extends Fragment
         Bundle args = getArguments();
         if (args != null) {
             String hostUserId = args.getString("hostUserId");
-            FirebaseWrapper.Database.getHostInsertedEvents(hostUserId, list, myAdapter, progressBar, tvNoEvents);
+            FirebaseWrapper.Database.getUserInsertedEvents(hostUserId, list, myAdapter, progressBar, tvNoEvents);
         }
     }
 

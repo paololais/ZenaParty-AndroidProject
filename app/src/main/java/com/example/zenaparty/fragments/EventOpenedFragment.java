@@ -118,7 +118,7 @@ public class EventOpenedFragment extends Fragment {
 
                     } else {
                         isFavorite = false;
-                        favoritesRef.child(eventId).setValue(false);
+                        favoritesRef.child(eventId).removeValue();
                         btnFavorite.setImageResource(R.drawable.ic_favorite_foreground);
                     }
                 });

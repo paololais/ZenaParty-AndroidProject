@@ -141,7 +141,36 @@ public class FirebaseWrapper {
 
         }
 
-        public static void saveEvent(MyEvent event, Context context, ProgressBar progressBar) {
+      /*  public static void readDatabase(ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents){
+            // show loading
+            progressBar.setVisibility(View.VISIBLE);
+
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    list.clear();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        MyEvent event = dataSnapshot.getValue(MyEvent.class);
+                        list.add(event);
+                    }
+                    myAdapter.setEventList(list);
+                    myAdapter.notifyDataSetChanged();
+
+                    filterEventsByDate(newFormattedDate);
+
+                    // hide loading
+                    progressBar.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+        */
+        public static void saveEvent(MyEvent event, String eventId,Context context, ProgressBar progressBar) {
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
 
@@ -151,70 +180,23 @@ public class FirebaseWrapper {
                     });
             AlertDialog dialog = builder.create();
 
-            databaseReference.orderByChild("timestamp")
-                    .limitToLast(1)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                // Get the last event
-                                DataSnapshot lastEventSnapshot = dataSnapshot.getChildren().iterator().next();
-                                Long lastEventIdValue = lastEventSnapshot.child("event_id").getValue(Long.class);
-
-                                // Step 2: Increment the retrieved "event_id" value
-                                long newEventIdValue;
-                                if (lastEventIdValue == null) {
-                                    newEventIdValue = 0L;   // If the "event_id" value is null, set it to 1
-                                } else {
-                                    newEventIdValue = lastEventIdValue + 1;
-                                }
-
-                                // Step 3: Insert a new event with the incremented "event_id" value
-                                event.setEvent_id(newEventIdValue);
-
-                                // Push the new event to the events node
-                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event)
-                                        .addOnSuccessListener(aVoid -> {
-                                            addToInsertedEvents(event);
-                                            Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
-                                            progressBar.setVisibility(View.GONE);
-
-                                            dialog.show();
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.e("FirebaseWrapper", "Error inserting new event: " + e.getMessage());
-                                            progressBar.setVisibility(View.GONE);
-                                            Toast.makeText(context, "Error inserting new event", Toast.LENGTH_SHORT).show();
-                                        });
-                            } else {
-                                databaseReference.setValue(0);
-                                Log.d("FirebaseWrapper", "Nodo 'events' creato con successo.");
-
-                                // Step 3: Insert a new event with the incremented "event_id" value
-                                long newEventIdValue = 0L;
-                                event.setEvent_id(newEventIdValue);
-
-                                // Push the new event to the events node
-                                databaseReference.child(String.valueOf(newEventIdValue)).setValue(event).addOnSuccessListener(aVoid -> {
-                                            addToInsertedEvents(event);
-                                            Log.w("FirebaseWrapper", "New event inserted with ID: " + newEventIdValue);
-                                            progressBar.setVisibility(View.GONE);
-                                            dialog.show();
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.e("FirebaseWrapper", "Error inserting new event: " + e.getMessage());
-                                            progressBar.setVisibility(View.GONE);
-                                            Toast.makeText(context, "Error inserting new event", Toast.LENGTH_SHORT).show();
-                                        });
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.w("FirebaseWrapper", "Failed to read value.", error.toException());
+            // Salvo l'evento nel database Firebase sotto la chiave generata
+            databaseReference.child(eventId).setValue(event)
+                    .addOnCompleteListener(task -> {
+                        progressBar.setVisibility(View.GONE);
+                        if (task.isSuccessful()) {
+                            Log.w("FirebaseWrapper", "New event inserted with ID: " + eventId);
                             progressBar.setVisibility(View.GONE);
+
+                            dialog.show();
+                        } else {
+                            Log.e("FirebaseWrapper", "Error inserting new event: " + task.getException());
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(context, "Error inserting new event", Toast.LENGTH_SHORT).show();
                         }
                     });
+
+
         }
 
         public static void getCurrentUserFavorites(ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
@@ -245,7 +227,7 @@ public class FirebaseWrapper {
                             DatabaseReference eventsReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
                                     .getReference("events");
                             assert eventId != null;
-                            Query eventQuery = eventsReference.orderByChild("event_id").equalTo(Integer.parseInt(eventId));
+                            Query eventQuery = eventsReference.orderByChild("event_id").equalTo(eventId);
                             eventQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @SuppressLint("NotifyDataSetChanged")
                                 @Override
@@ -296,139 +278,68 @@ public class FirebaseWrapper {
                 });
             }
         }
-
-        public static void getUserEventsInserted(ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
-            // Mostra il progresso di caricamento
-            progressBar.setVisibility(View.VISIBLE);
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-
-            if (auth.getCurrentUser() != null) {
-                String currentUserId = auth.getCurrentUser().getUid();
-                DatabaseReference usersReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
-                        .getReference("users");
-
-                Query query = usersReference.child(currentUserId).child("inserted_events").orderByKey();
-
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        list.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            // Ottieni l'ID dell'evento preferito dall'utente
-                            String eventId = dataSnapshot.getKey();
-
-                            // Cerca l'evento corrispondente nell'elenco degli eventi
-                            DatabaseReference eventsReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
-                                    .getReference("events");
-                            assert eventId != null;
-                            Query eventQuery = eventsReference.orderByChild("event_id").equalTo(Integer.parseInt(eventId));
-                            eventQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @SuppressLint("NotifyDataSetChanged")
+        public static void removeFromUserFavorites(String eventId){
+            DatabaseReference usersRef = FirebaseDatabase.getInstance()
+                    .getReference("users");
+            usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                        String userId = userSnapshot.getKey();
+                        if (userId != null) {
+                            // Verifica se l'evento è nei preferiti di questo utente
+                            DatabaseReference userFavoritesRef = FirebaseDatabase.getInstance()
+                                    .getReference("users")
+                                    .child(userId)
+                                    .child("preferiti")
+                                    .child(eventId);
+                            userFavoritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    for (DataSnapshot eventDataSnapshot : snapshot.getChildren()) {
-                                        MyEvent event = eventDataSnapshot.getValue(MyEvent.class);
-                                        list.add(event);
-                                    }
-
-                                    // Aggiorna l'adattatore e nascondi il progresso di caricamento
-                                    myAdapter.setEventList(list);
-                                    myAdapter.notifyDataSetChanged();
-                                    progressBar.setVisibility(View.GONE);
-
-                                    if (list.isEmpty()) {
-                                        tvNoEvents.setVisibility(View.VISIBLE);
-                                    } else {
-                                        tvNoEvents.setVisibility(View.GONE);
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        // Se l'evento è nei preferiti di questo utente, rimuovilo
+                                        userFavoritesRef.removeValue();
+                                        Log.d("firebase wrapper", "removed from user favorites: " + userId);
                                     }
                                 }
 
                                 @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    progressBar.setVisibility(View.GONE);
-
-                                    if (list.isEmpty()) {
-                                        tvNoEvents.setVisibility(View.VISIBLE);
-                                    } else {
-                                        tvNoEvents.setVisibility(View.GONE);
-                                    }
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    // Gestisci eventuali errori di lettura del database
                                 }
                             });
                         }
-                        progressBar.setVisibility(View.GONE);
-
-                        if (list.isEmpty()) {
-                            tvNoEvents.setVisibility(View.VISIBLE);
-                        } else {
-                            tvNoEvents.setVisibility(View.GONE);
-                        }
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        progressBar.setVisibility(View.GONE);
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-                        if (list.isEmpty()) {
-                            tvNoEvents.setVisibility(View.VISIBLE);
-                        } else {
-                            tvNoEvents.setVisibility(View.GONE);
-                        }
-                    }
-                });
-            }
+                }
+            });
         }
-
-        public static void addToInsertedEvents(MyEvent myEvent) {
-
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-
-            if (auth.getCurrentUser() != null) {
-                String userId = auth.getCurrentUser().getUid();
-
-                DatabaseReference insertedEventsRef = FirebaseDatabase.getInstance()
-                        .getReference("users")
-                        .child(userId)
-                        .child("inserted_events");
-                String eventId = String.valueOf(myEvent.getEvent_id());
-
-                insertedEventsRef.child(eventId).setValue(true);
-            }
-        }
-
-        public static void removeFromInsertedEvents(EventListInterface listInterface, MyEvent myEvent, int position) {
-
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-
-            if (auth.getCurrentUser() != null) {
-                String userId = auth.getCurrentUser().getUid();
-
-                DatabaseReference insertedEventsRef = FirebaseDatabase.getInstance()
-                        .getReference("users")
-                        .child(userId)
-                        .child("inserted_events");
-                String eventId = String.valueOf(myEvent.getEvent_id());
-
-                insertedEventsRef.child(eventId).removeValue((error, ref) -> {
-                    if (error == null) {
+        public static void removeFromInsertedEvents(EventListInterface listInterface, Context context, MyEvent myEvent, int position) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.conferma_rimozione)
+                    .setMessage(R.string.rimozione_evento)
+                    .setPositiveButton("Ok", (dialog, which) -> {
+                        String eventId = String.valueOf(myEvent.getEvent_id());
                         DatabaseReference eventsRef = FirebaseDatabase.getInstance()
                                 .getReference("events")
                                 .child(eventId);
                         eventsRef.removeValue((error1, ref1) -> {
                             if (error1 == null) {
                                 listInterface.onEventRemoved(true, position);
+                                removeFromUserFavorites(eventId);
                                 Log.d("firebase wrapper", "removed from inserted events");
                             } else {
                                 listInterface.onEventRemoved(false, position);
-                                Log.d("firebase wrapper", "error removed from inserted events");
+                                Log.d("firebase wrapper", "error while removing from inserted events");
                             }
                         });
-                    } else {
-                        listInterface.onEventRemoved(false, position);
-                        Log.d("firebase wrapper", " error removed from inserted events");
-                    }
-                });
-            }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         }
 
         public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar, TextView okUsername) {
@@ -516,61 +427,22 @@ public class FirebaseWrapper {
             });
         }
 
-        public static void getHostInsertedEvents(String userId, ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
+        public static void getUserInsertedEvents(String userId, ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
             if (userId != null) {
-                DatabaseReference usersReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
-                        .getReference("users");
-
-                Query query = usersReference.child(userId).child("inserted_events").orderByKey();
-
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                DatabaseReference eventsRef = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
+                        .getReference("events");
+                eventsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         list.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            String eventId = dataSnapshot.getKey();
-
-                            // Cerca l'evento corrispondente nell'elenco degli eventi
-                            DatabaseReference eventsReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
-                                    .getReference("events");
-                            assert eventId != null;
-                            Query eventQuery = eventsReference.orderByChild("event_id").equalTo(Integer.parseInt(eventId));
-                            eventQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @SuppressLint("NotifyDataSetChanged")
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    for (DataSnapshot eventDataSnapshot : snapshot.getChildren()) {
-                                        MyEvent event = eventDataSnapshot.getValue(MyEvent.class);
-                                        list.add(event);
-                                    }
-
-                                    // Aggiorna l'adattatore e nascondi il progresso di caricamento
-                                    myAdapter.setEventList(list);
-                                    myAdapter.notifyDataSetChanged();
-                                    progressBar.setVisibility(View.GONE);
-
-                                    if (list.isEmpty()) {
-                                        tvNoEvents.setVisibility(View.VISIBLE);
-                                    } else {
-                                        tvNoEvents.setVisibility(View.GONE);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    progressBar.setVisibility(View.GONE);
-
-                                    if (list.isEmpty()) {
-                                        tvNoEvents.setVisibility(View.VISIBLE);
-                                    } else {
-                                        tvNoEvents.setVisibility(View.GONE);
-                                    }
-                                }
-                            });
+                        for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
+                            MyEvent event = eventSnapshot.getValue(MyEvent.class);
+                            if (event != null && event.getUserId().equals(userId)) {
+                                list.add(event);
+                            }
                         }
+                        myAdapter.notifyDataSetChanged();
                         progressBar.setVisibility(View.GONE);
-
                         if (list.isEmpty()) {
                             tvNoEvents.setVisibility(View.VISIBLE);
                         } else {
@@ -581,7 +453,6 @@ public class FirebaseWrapper {
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         progressBar.setVisibility(View.GONE);
-
                         if (list.isEmpty()) {
                             tvNoEvents.setVisibility(View.VISIBLE);
                         } else {
@@ -589,12 +460,9 @@ public class FirebaseWrapper {
                         }
                     }
                 });
-            } else {
-                tvNoEvents.setVisibility(View.VISIBLE);
             }
         }
 
-        // Metodo per ottenere la valutazione media dell'utente host
         public static void getHostRating(String hostUserId, RatingBar ratingBar, TextView ratingValueTV, TextView numberOfReviewsTV) {
             DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("users").child(hostUserId).child("ratings");
             ratingsRef.addListenerForSingleValueEvent(new ValueEventListener() {

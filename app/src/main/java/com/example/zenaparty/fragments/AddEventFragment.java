@@ -3,6 +3,7 @@ package com.example.zenaparty.fragments;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -21,7 +23,10 @@ import androidx.fragment.app.Fragment;
 import com.example.zenaparty.R;
 import com.example.zenaparty.models.FirebaseWrapper;
 import com.example.zenaparty.models.MyEvent;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -30,6 +35,7 @@ import java.util.Objects;
 public class AddEventFragment extends Fragment {
     private TextView dateTextView;
     private TextView timeTextView;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     public View onCreateView( LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
@@ -38,6 +44,21 @@ public class AddEventFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // code to show/hide bottom navigation view if keyboard is open
+        bottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView);
+        LinearLayout linearLayout = view.findViewById(R.id.linLayout);
+        linearLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect r = new Rect();
+            linearLayout.getWindowVisibleDisplayFrame(r);
+            int screenHeight = linearLayout.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+            if (keypadHeight > screenHeight * 0.15) { // if more than 15% of the screen height, it's probably a keyboard
+                bottomNavigationView.setVisibility(View.GONE);
+            } else {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+            }
+        });
 
         ProgressBar progressBar = view.findViewById(R.id.progressBar);
 
@@ -62,7 +83,6 @@ public class AddEventFragment extends Fragment {
         dateTextView.setOnClickListener(v -> showDatePicker());
         timeTextView.setOnClickListener(v -> showTimePicker());
 
-
         btnCreateEvent.setOnClickListener(v -> {
             // hide keyboard
             InputMethodManager manager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -84,10 +104,10 @@ public class AddEventFragment extends Fragment {
                 Toast.makeText(getContext(), "One of the fields is empty", Toast.LENGTH_LONG).show();
                 return;
             }
-
-            MyEvent event = new MyEvent(eventName, eventDate, eventLocation, eventTime, eventType, eventPrice, eventDescription, eventHost);
-
-            FirebaseWrapper.Database.saveEvent(event, getContext(), progressBar);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
+            String eventId = databaseReference.push().getKey();
+            MyEvent event = new MyEvent(eventId, eventName, eventDate, eventLocation, eventTime, eventType, eventPrice, eventDescription, eventHost);
+            FirebaseWrapper.Database.saveEvent(event, eventId, getContext(), progressBar);
         });
     }
 
