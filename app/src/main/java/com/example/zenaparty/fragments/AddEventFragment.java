@@ -36,6 +36,8 @@ public class AddEventFragment extends Fragment {
     private TextView dateTextView;
     private TextView timeTextView;
     private BottomNavigationView bottomNavigationView;
+    private EditText nameET, descriptionET, locationET, priceET;
+    private Spinner typeSpinner;
 
     @Override
     public View onCreateView( LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
@@ -65,6 +67,12 @@ public class AddEventFragment extends Fragment {
         //create event listener for button to add event
         Button btnCreateEvent = view.findViewById(R.id.addEventButton);
 
+        nameET = view.findViewById(R.id.addEventName);
+        descriptionET = view.findViewById(R.id.addEventDescription);
+        locationET = view.findViewById(R.id.addEventAddress);
+        priceET = view.findViewById(R.id.addEventPrice);
+        typeSpinner = view.findViewById(R.id.addEventType);
+
         dateTextView = view.findViewById(R.id.tvSelectDate);
         timeTextView = view.findViewById(R.id.tvselectTime);
         // Imposta la data predefinita
@@ -75,7 +83,7 @@ public class AddEventFragment extends Fragment {
         String defaultDate = String.format(Locale.getDefault(), "%02d-%02d-%04d", dayOfMonth, month, year);
         dateTextView.setText(defaultDate);
 
-// Imposta l'ora predefinita
+        // Imposta l'ora predefinita
         int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         String defaultTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
@@ -88,17 +96,17 @@ public class AddEventFragment extends Fragment {
             InputMethodManager manager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
             //get all the data from the form
-            String eventName = ((EditText) view.findViewById(R.id.addEventName)).getText().toString();
-            String eventDescription = ((EditText) view.findViewById(R.id.addEventDescription)).getText().toString();
-            String eventLocation = ((EditText) view.findViewById(R.id.addEventAddress)).getText().toString();
+            String eventName = nameET.getText().toString();
+            String eventDescription = descriptionET.getText().toString();
+            String eventLocation = locationET.getText().toString();
+            String eventPrice = priceET.getText().toString();
 
             String eventDate = dateTextView.getText().toString();
             String eventTime = timeTextView.getText().toString();
 
-            String eventType = ((Spinner) view.findViewById(R.id.addEventPlace)).getSelectedItem().toString();
+            String eventType = typeSpinner.getSelectedItem().toString();
 
             String eventHost = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-            String eventPrice = ((EditText) view.findViewById(R.id.addEventPrice)).getText().toString();
 
             if (eventName.isEmpty() || eventDescription.isEmpty() || eventLocation.isEmpty() || eventDate.isEmpty() || eventTime.isEmpty() || eventType.isEmpty() || Objects.requireNonNull(eventHost).isEmpty()) {
                 Toast.makeText(getContext(), "One of the fields is empty", Toast.LENGTH_LONG).show();
@@ -107,7 +115,16 @@ public class AddEventFragment extends Fragment {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
             String eventId = databaseReference.push().getKey();
             MyEvent event = new MyEvent(eventId, eventName, eventDate, eventLocation, eventTime, eventType, eventPrice, eventDescription, eventHost);
-            FirebaseWrapper.Database.saveEvent(event, eventId, getContext(), progressBar);
+            FirebaseWrapper.Database.saveEvent(event, eventId, getContext(), progressBar, isSaved->{
+                if(isSaved){
+                    nameET.getText().clear();
+                    descriptionET.getText().clear();
+                    locationET.getText().clear();
+                    priceET.getText().clear();
+                    dateTextView.setText(defaultDate);
+                    timeTextView.setText(defaultTime);
+                }
+            });
         });
     }
 

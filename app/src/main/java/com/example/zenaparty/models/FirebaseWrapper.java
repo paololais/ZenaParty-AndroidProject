@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 
 import com.example.zenaparty.R;
 import com.example.zenaparty.adapters.EventListAdapter;
+import com.example.zenaparty.fragments.AddEventFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -133,6 +134,10 @@ public class FirebaseWrapper {
         void onReviewChecked(boolean userReviewed);
     }
 
+    public interface OnEventSavedListener {
+        void onEventSavedSuccessfully(boolean success);
+    }
+
     //database
     public static class Database {
         private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
@@ -170,7 +175,7 @@ public class FirebaseWrapper {
             });
         }
         */
-        public static void saveEvent(MyEvent event, String eventId,Context context, ProgressBar progressBar) {
+        public static void saveEvent(MyEvent event, String eventId,Context context, ProgressBar progressBar, OnEventSavedListener eventSavedListener) {
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
 
@@ -187,16 +192,15 @@ public class FirebaseWrapper {
                         if (task.isSuccessful()) {
                             Log.w("FirebaseWrapper", "New event inserted with ID: " + eventId);
                             progressBar.setVisibility(View.GONE);
-
+                            eventSavedListener.onEventSavedSuccessfully(true);
                             dialog.show();
                         } else {
                             Log.e("FirebaseWrapper", "Error inserting new event: " + task.getException());
                             progressBar.setVisibility(View.GONE);
+                            eventSavedListener.onEventSavedSuccessfully(false);
                             Toast.makeText(context, "Error inserting new event", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-
         }
 
         public static void getCurrentUserFavorites(ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents) {
