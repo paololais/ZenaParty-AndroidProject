@@ -1,8 +1,10 @@
 package com.example.zenaparty.fragments;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,10 +19,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.zenaparty.R;
+import com.example.zenaparty.activities.LogActivity;
 import com.example.zenaparty.models.FirebaseWrapper;
 import com.example.zenaparty.models.MyEvent;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -39,6 +44,28 @@ public class AddEventFragment extends Fragment {
     private EditText nameET, descriptionET, locationET, priceET;
     private Spinner typeSpinner;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // This callback is only called when MyFragment is at least started
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setMessage(R.string.exit_dialog)
+                        .setPositiveButton("Ok", (dialog, which) -> {
+                            requireActivity().finish();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                        })
+                        .show();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+
+    }
     @Override
     public View onCreateView( LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_addevent, container, false);

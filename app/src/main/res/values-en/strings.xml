@@ -76,4 +76,5 @@
     <string name="conferma_rimozione">Confirm removal</string>
     <string name="logout_dialog">Are you sure you want to logout?</string>
     <string name="remove_review">Are you sure you want to remove your review?</string>
+    <string name="exit_dialog">You may have unsaved data. Are you sure you want to exit the app?</string>
 </resources>

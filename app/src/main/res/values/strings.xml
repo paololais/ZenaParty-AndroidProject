@@ -75,4 +75,5 @@
     <string name="conferma_rimozione">Conferma rimozione</string>
     <string name="logout_dialog">Sei sicuro di voler fare il logout?</string>
     <string name="remove_review">Sei sicuro di voler rimuovere la tua recensione?</string>
+    <string name="exit_dialog">Potresti avere dei dati non salvati. Sei sicuro di voler uscire dall\'app?</string>
 </resources>

@@ -76,4 +76,5 @@
     <string name="conferma_rimozione">Confirmer la suppression</string>
     <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter?</string>
     <string name="remove_review">Êtes-vous sûr de vouloir supprimer votre avis?</string>
+    <string name="exit_dialog">vous avez peut-être des données non enregistrées. Êtes-vous sûr de vouloir quitter l\'application?</string>
 </resources>
