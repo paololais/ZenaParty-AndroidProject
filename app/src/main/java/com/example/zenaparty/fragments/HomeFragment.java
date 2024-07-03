@@ -5,11 +5,14 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -75,6 +78,7 @@ public class HomeFragment extends Fragment
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
+
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -97,6 +101,7 @@ public class HomeFragment extends Fragment
 
         sharedPreferences = requireActivity().getSharedPreferences("SavedValues", Context.MODE_PRIVATE);
 
+        LinearLayout homeLayout = view.findViewById(R.id.homelayout);
         recyclerView = view.findViewById(R.id.eventsRecyclerView);
         database = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
         recyclerView.setHasFixedSize(true);

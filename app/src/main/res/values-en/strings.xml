@@ -69,8 +69,8 @@
     <string name="username_modificato">Username modified</string>
     <string name="lingua_modificata">Language changed</string>
     <string name="i_suoi_eventi">Events</string>
-    <string name="organizzatore">Host</string>
-    <string name="mostra_organizzatore">Show host</string>
+    <string name="organizzatore">Organizer</string>
+    <string name="mostra_organizzatore">Show organizer</string>
     <string name="event_added">Event added successfully</string>
     <string name="rimozione_evento">Are you sure you want to remove this event?</string>
     <string name="conferma_rimozione">Confirm removal</string>
