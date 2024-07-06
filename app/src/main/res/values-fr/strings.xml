@@ -53,7 +53,7 @@
     <string name="modifica_profilo">Modifier le profil</string>
     <string name="logout">Déconnexion</string>
     <string name="new_username">Nouveau nom d\'utilisateur</string>
-    <string name="salva_modifiche">Sauvegarder les modifications</string>
+    <string name="salva_modifiche">Sauver</string>
     <string name="profile">Profil</string>
     <string name="max_power">Puissance maximale</string>
     <string name="inserisci_un_nuovo_evento">Insérer un nouvel événement</string>
@@ -77,4 +77,7 @@
     <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter?</string>
     <string name="remove_review">Êtes-vous sûr de vouloir supprimer votre avis?</string>
     <string name="exit_dialog">vous avez peut-être des données non enregistrées. Êtes-vous sûr de vouloir quitter l\'application?</string>
+    <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
+    <string name="il_tuo_qr_code">Il tuo QR Code</string>
+    <string name="i_tuoi_sconti">I tuoi sconti</string>
 </resources>

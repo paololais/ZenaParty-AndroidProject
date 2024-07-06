@@ -52,7 +52,7 @@
     <string name="modifica_profilo">Modifica Profilo</string>
     <string name="logout">Logout</string>
     <string name="new_username">Nuovo username</string>
-    <string name="salva_modifiche">Salva modifiche</string>
+    <string name="salva_modifiche">Salva</string>
     <string name="profile">Profilo</string>
     <string name="max_power">Max Power</string>
     <string name="inserisci_un_nuovo_evento">Inserisci un nuovo evento</string>
@@ -76,4 +76,8 @@
     <string name="logout_dialog">Sei sicuro di voler fare il logout?</string>
     <string name="remove_review">Sei sicuro di voler rimuovere la tua recensione?</string>
     <string name="exit_dialog">Potresti avere dei dati non salvati. Sei sicuro di voler uscire dall\'app?</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
+    <string name="il_tuo_qr_code">I tuoi QR Code</string>
+    <string name="i_tuoi_sconti">I tuoi sconti</string>
 </resources>

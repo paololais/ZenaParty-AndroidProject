@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="15dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:orientation="vertical"
@@ -57,36 +58,149 @@
                 android:textColor="@color/black"
                 android:textSize="22sp"
                 android:textStyle="bold" />
+            <RelativeLayout
+                android:id="@+id/myeventsRL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:layout_marginTop="50dp">
 
 
-            <TextView
-                android:id="@+id/eventstv"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/round_back_secondary_100"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/i_tuoi_eventi"
-                android:textColor="@color/Primary" />
+                <ImageView
+                    android:id="@+id/edit_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#03A9F4"
+                    android:src="@drawable/baseline_publish_24"
+                    tools:ignore="ContentDescription,ImageContrastCheck" />
 
-            <TextView
-                android:id="@+id/prefertv"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/round_back_secondary_100"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/i_tuoi_preferiti"
-                android:textAllCaps="false"
-                android:textColor="@color/Primary" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@+id/edit_icon"
+                    android:text="@string/i_tuoi_eventi"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_mode_icon"
+                    tools:ignore="ContentDescription" />
 
 
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/myfavoritesRL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:layout_marginTop="50dp">
+
+                <ImageView
+                    android:id="@+id/favoriteIcon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#F44336"
+                    android:scaleX="1.1"
+                    android:scaleY="1.1"
+                    android:src="@drawable/ic_favorite_foreground"
+                    tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@+id/favoriteIcon"
+                    android:text="@string/i_tuoi_preferiti"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_mode_icon"
+                    tools:ignore="ContentDescription" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/your_qrRL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:layout_marginTop="50dp">
+
+                <ImageView
+                    android:id="@+id/qr_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#4CAF50"
+                    android:src="@drawable/baseline_qr_code_scanner_24"
+                    tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@+id/qr_icon"
+                    android:text="@string/il_tuo_qr_code"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_mode_icon"
+                    tools:ignore="ContentDescription" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/discountsRL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_border"
+                android:layout_marginTop="50dp">
+
+                <ImageView
+                    android:id="@+id/disc_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@color/GIALLO"
+                    android:src="@drawable/baseline_percent_24"
+                    tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@+id/disc_icon"
+                    android:text="@string/i_tuoi_sconti"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_mode_icon"
+                    tools:ignore="ContentDescription" />
+            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

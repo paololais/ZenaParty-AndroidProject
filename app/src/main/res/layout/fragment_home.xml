@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
-    android:orientation="vertical"
     android:id="@+id/homelayout"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
@@ -14,85 +13,113 @@
     tools:context=".activities.MainActivity">
 
     <LinearLayout
-        android:layout_width="350dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
-        <ImageButton
-            android:id="@+id/btnFilter"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ic_filter_foreground"
-            android:backgroundTint="#000000"
-            android:contentDescription="@string/filter_options"
-            tools:ignore="TouchTargetSizeCheck,VisualLintBounds" />
+        <LinearLayout
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnDecreaseDay"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ic_arrow_left_foreground"
-            android:contentDescription="@string/decrease_date" />
+            <ImageButton
+                android:id="@+id/btnFilter"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_filter_foreground"
+                android:backgroundTint="#000000"
+                android:contentDescription="@string/filter_options"
+                tools:ignore="TouchTargetSizeCheck,VisualLintBounds" />
+
+            <Button
+                android:id="@+id/btnDecreaseDay"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_arrow_left_foreground"
+                android:contentDescription="@string/decrease_date" />
+
+            <TextView
+                android:id="@+id/tvSelectDate"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/date_border"
+                android:padding="5dp"
+                android:text="@string/ven_6_giugno"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="#fff"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                tools:ignore="TextSizeCheck" />
+
+            <Button
+                android:id="@+id/btnIncreaseDay"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_arrow_right_foreground"
+                android:contentDescription="@string/increase_date" />
+
+            <ImageButton
+                android:id="@+id/btnRefresh"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_refresh_foreground"
+                android:backgroundTint="#000000"
+                android:contentDescription="@string/refresh"
+                tools:ignore="TouchTargetSizeCheck,VisualLintBounds" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tvSelectDate"
-            android:layout_width="160dp"
+            android:id="@+id/tvNoEvents"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/date_border"
-            android:padding="5dp"
-            android:text="@string/ven_6_giugno"
+            android:layout_margin="30dp"
+            android:text="@string/nessun_evento"
             android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            tools:ignore="TextSizeCheck" />
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btnIncreaseDay"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ic_arrow_right_foreground"
-            android:contentDescription="@string/increase_date" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="50dp"
+            android:visibility="gone" />
 
-        <ImageButton
-            android:id="@+id/btnRefresh"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ic_refresh_foreground"
-            android:backgroundTint="#000000"
-            android:contentDescription="@string/refresh"
-            tools:ignore="TouchTargetSizeCheck,VisualLintBounds" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/eventsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp" />
+
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvNoEvents"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/qr_scan"
+        app:fabSize="normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="30dp"
-        android:text="@string/nessun_evento"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textStyle="italic"
-        android:visibility="gone" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="QrCodeButton"
+        app:borderWidth="3dp"
+        android:src="@drawable/qr_code"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_margin="50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone" />
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/eventsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"/>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

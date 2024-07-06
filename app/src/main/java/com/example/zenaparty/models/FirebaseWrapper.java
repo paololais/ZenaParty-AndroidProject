@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 
 import com.example.zenaparty.R;
 import com.example.zenaparty.adapters.EventListAdapter;
-import com.example.zenaparty.fragments.AddEventFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -138,6 +137,10 @@ public class FirebaseWrapper {
         void onEventSavedSuccessfully(boolean success);
     }
 
+    public interface OnQRCodeFoundListener {
+        void onQRCodeFound(boolean found);
+    }
+
     //database
     public static class Database {
         private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
@@ -146,35 +149,6 @@ public class FirebaseWrapper {
 
         }
 
-      /*  public static void readDatabase(ArrayList<MyEvent> list, EventListAdapter myAdapter, ProgressBar progressBar, TextView tvNoEvents){
-            // show loading
-            progressBar.setVisibility(View.VISIBLE);
-
-            databaseReference.addValueEventListener(new ValueEventListener() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    list.clear();
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        MyEvent event = dataSnapshot.getValue(MyEvent.class);
-                        list.add(event);
-                    }
-                    myAdapter.setEventList(list);
-                    myAdapter.notifyDataSetChanged();
-
-                    filterEventsByDate(newFormattedDate);
-
-                    // hide loading
-                    progressBar.setVisibility(View.GONE);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-        */
         public static void saveEvent(MyEvent event, String eventId,Context context, ProgressBar progressBar, OnEventSavedListener eventSavedListener) {
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
@@ -436,6 +410,7 @@ public class FirebaseWrapper {
                 DatabaseReference eventsRef = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/")
                         .getReference("events");
                 eventsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         list.clear();
@@ -517,9 +492,7 @@ public class FirebaseWrapper {
                             getHostRating(userId, ratingBar, ratingValueTV, numberOfReviewsTV);
                             deleteReviewBtn.setVisibility(View.VISIBLE);
                         })
-                        .addOnFailureListener(e -> {
-                            Log.e("FirebaseWrapper", "Error sending new rating: " + e.getMessage());
-                        });
+                        .addOnFailureListener(e -> Log.e("FirebaseWrapper", "Error sending new rating: " + e.getMessage()));
             }
         }
 
@@ -544,9 +517,7 @@ public class FirebaseWrapper {
                                         getHostRating(hostUserId,ratingBar,ratingValueTV,numberOfReviewsTV);
                                         deleteReviewBtn.setVisibility(View.GONE);
                                     })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("FirebaseWrapper", "Error removing review: " + e.getMessage());
-                                    });
+                                    .addOnFailureListener(e -> Log.e("FirebaseWrapper", "Error removing review: " + e.getMessage()));
                         } else {
                             // Non esiste una recensione dell'utente corrente per l'host
                             Log.d("FirebaseWrapper", "No review found for current user");
@@ -573,12 +544,8 @@ public class FirebaseWrapper {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     // Se l'utente ha inserito una recensione, restituisci true al listener
-                    if (snapshot.exists()) {
-                        listener.onReviewChecked(true);
-                    } else {
-                        // Altrimenti, restituisci false al listener
-                        listener.onReviewChecked(false);
-                    }
+                    // Altrimenti, restituisci false al listener
+                    listener.onReviewChecked(snapshot.exists());
                 }
 
                 @Override
@@ -588,6 +555,79 @@ public class FirebaseWrapper {
                 }
             });
         }
+
+        //method to check if a QR code exists in the DB
+        public static void checkQRCodeValidity(String QRCodeID, OnQRCodeFoundListener listener){
+            DatabaseReference QRCodesRef = FirebaseDatabase.getInstance().getReference("qr_codes");
+
+            QRCodesRef.child(QRCodeID).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    listener.onQRCodeFound(snapshot.exists());
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Gestisci eventuali errori durante il recupero dei dati
+                    Log.e("FirebaseWrapper", "Error checking QR Code Validity: " + error.getMessage());
+                }
+            });
+        }
+
+        public static void CreateQRCode(String QRMessage){
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                // Ottieni l'ID dell'utente corrente
+                String currentUserId = currentUser.getUid();
+                DatabaseReference QRCodesRef = FirebaseDatabase.getInstance().getReference("qr_codes");
+                QRCodesRef.child(currentUserId).setValue(QRMessage)
+                        .addOnSuccessListener(aVoid -> Log.d("FirebaseWrapper", "New QR Code saved successfully"))
+                        .addOnFailureListener(e -> Log.e("FirebaseWrapper", "Error creating new QR Code: " + e.getMessage()));
+            }
+        }
+
+        public static void ReadQRCode(String qrCodeID, TextView messageTV){
+            DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeID);
+
+            QRCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String message = dataSnapshot.getValue(String.class);
+                        messageTV.setText(message);
+                    } else {
+                        // Lo username non esiste nel database
+                        Log.d("FirebaseWrapper", "QR Code non trovato nel database");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Gestisci eventuali errori di accesso al database
+                    Log.e("FirebaseWrapper", "Errore durante il recupero del QR Code: " + databaseError.getMessage());
+                }
+            });
+        }
+
+        public static void DeleteQRCode(String qrCodeID){
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                // Ottieni l'ID dell'utente corrente
+                String currentUserId = currentUser.getUid();
+                DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeID);
+
+                QRCodeRef.removeValue()
+                        .addOnSuccessListener(aVoid -> Log.d("FirebaseWrapper", "QR Code ddeleted successfully"))
+                        .addOnFailureListener(e-> Log.e("FirebaseWrapper", "Error while deleting QR code"));
+            }
+        }
+
+        public static void GetUserQrCodes(){
+
+        }
+
 
     }
 }

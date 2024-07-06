@@ -4,32 +4,39 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.GestureDetector;
+import android.util.Base64;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import com.example.zenaparty.R;
+import android.Manifest;
 import com.example.zenaparty.adapters.EventListAdapter;
+import com.example.zenaparty.models.CryptoUtils;
 import com.example.zenaparty.models.EventListInterface;
 import com.example.zenaparty.models.FilterDialogListener;
 import com.example.zenaparty.models.MyEvent;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +44,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.zxing.client.android.Intents;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
@@ -64,9 +74,11 @@ public class HomeFragment extends Fragment
 
     boolean isParty = true, isSagre = true, isMusica = true, isSport = true, isAltro = true;
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         // This callback is only called when MyFragment is at least started
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -77,9 +89,8 @@ public class HomeFragment extends Fragment
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-
-
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -97,11 +108,11 @@ public class HomeFragment extends Fragment
         Button btnDecreaseDay = view.findViewById(R.id.btnDecreaseDay);
         ImageButton btnFilter = view.findViewById(R.id.btnFilter);
         ImageButton btnRefresh = view.findViewById(R.id.btnRefresh);
+        FloatingActionButton fab = view.findViewById(R.id.qr_scan);
         progressBar = view.findViewById(R.id.progressBar);
 
         sharedPreferences = requireActivity().getSharedPreferences("SavedValues", Context.MODE_PRIVATE);
 
-        LinearLayout homeLayout = view.findViewById(R.id.homelayout);
         recyclerView = view.findViewById(R.id.eventsRecyclerView);
         database = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
         recyclerView.setHasFixedSize(true);
@@ -169,6 +180,7 @@ public class HomeFragment extends Fragment
                 filterEventsByType();
             },year, month,day);
             dialog.show();
+            fab.show();
 
         });
         // Listener per il pulsante per aumentare il giorno
@@ -182,6 +194,7 @@ public class HomeFragment extends Fragment
             SimpleDateFormat newFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             newFormattedDate = newFormat.format(calendar.getTime());
             filterEventsByType();
+            fab.show();
         });
         // Listener per il pulsante per decrementare il giorno
         btnDecreaseDay.setOnClickListener(v -> {
@@ -194,10 +207,33 @@ public class HomeFragment extends Fragment
             SimpleDateFormat newFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             newFormattedDate = newFormat.format(calendar.getTime());
             filterEventsByType();
+            fab.show();
         });
         btnFilter.setOnClickListener(view13 -> openFilterDialog());
 
         btnRefresh.setOnClickListener(view12 -> readDatabase(database));
+
+        fab.setOnClickListener(view1 -> {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+            } else {
+                // Permesso già garantito, avvia l'uso della fotocamera
+                showCamera();
+            }
+        });
+
+        recyclerView.addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0 && fab.isShown()) {
+                    fab.hide();
+                } else if (dy < 0 && !fab.isShown()) {
+                    fab.show();
+                }
+            }
+        });
     }
 
     private void openFilterDialog(){
@@ -353,4 +389,53 @@ public class HomeFragment extends Fragment
 
         filterEventsByType();
     }
+    private void showCamera() {
+        ScanOptions options = new ScanOptions();
+        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+        options.setPrompt("Scan QR Code");
+        options.setCameraId(0);
+        options.setBeepEnabled(true);
+        options.setBarcodeImageEnabled(true);
+        options.setOrientationLocked(true);
+
+        qrCodeLauncher.launch(options);
+    }
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted-> {
+                if(isGranted){
+                    showCamera();
+                } else {}
+            });
+
+    private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result->{
+        if(result.getContents() == null) {
+            Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_SHORT).show();
+        } else {
+            try {
+                String scannedData = result.getContents();
+                byte[] salt = Base64.decode(scannedData.substring(0, 24), Base64.DEFAULT); // La lunghezza del salt codificato in base64 è 24 caratteri
+                String encryptedMessage = scannedData.substring(24);
+
+                // Decriptare il messaggio
+                String password = "supersegreta";
+                String decryptedMessage = CryptoUtils.decrypt(encryptedMessage, password, salt);
+
+                // Passare il messaggio decrittato al fragment BonusFragment
+                BonusFragment bonusFragment = new BonusFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("bonus", decryptedMessage);
+                bonusFragment.setArguments(bundle);
+                FragmentManager fragmentManager = getParentFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.flFragment, bonusFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "Error decrypting message", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        }
+    });
+
+
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -18,9 +19,6 @@ import com.example.zenaparty.R;
 import com.example.zenaparty.models.FirebaseWrapper;
 
 public class ProfileFragment extends Fragment {
-    ImageView settingImageView;
-    TextView eventsTV;
-    TextView preferTV;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,16 +48,17 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        settingImageView = view.findViewById(R.id.settingsiv);
-        eventsTV = view.findViewById(R.id.eventstv);
-        preferTV = view.findViewById(R.id.prefertv);
+        ImageView settingImageView = view.findViewById(R.id.settingsiv);
+        RelativeLayout myEventsRL = view.findViewById(R.id.myeventsRL);
+        RelativeLayout myFavoritesRL = view.findViewById(R.id.myfavoritesRL);
+        RelativeLayout myQrCodesRL = view.findViewById(R.id.your_qrRL);
+        RelativeLayout myDiscountsRL = view.findViewById(R.id.discountsRL);
 
         TextView usernameTv = view.findViewById(R.id.usernameTv);
 
         FirebaseWrapper.Database.getAndSetUsername(usernameTv);
 
         settingImageView.setOnClickListener(view1 -> {
-
             SettingsFragment SettingsFragment = new SettingsFragment();
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -68,7 +67,7 @@ public class ProfileFragment extends Fragment {
             fragmentTransaction.commit();
         });
 
-        eventsTV.setOnClickListener(view12 -> {
+        myEventsRL.setOnClickListener(view12 -> {
             MyEventsFragment myEventsFragment = new MyEventsFragment();
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -77,7 +76,7 @@ public class ProfileFragment extends Fragment {
             fragmentTransaction.commit();
         });
 
-        preferTV.setOnClickListener(view13 -> {
+        myFavoritesRL.setOnClickListener(view13 -> {
             PreferitiFragment preferitiFragment = new PreferitiFragment();
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -85,5 +84,19 @@ public class ProfileFragment extends Fragment {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         });
+
+        myQrCodesRL.setOnClickListener(view2 -> {
+            PersonalQRFragment personalQRFragment = new PersonalQRFragment();
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.flFragment, personalQRFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        });
+
+        myDiscountsRL.setOnClickListener(view3-> {
+
+        });
+
     }
 }

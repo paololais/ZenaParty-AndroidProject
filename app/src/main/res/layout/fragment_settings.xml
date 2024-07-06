@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#fff"
     android:orientation="vertical"
-    android:padding="15dp"
+    android:layout_margin="15dp"
     tools:context=".activities.MainActivity">
 
     <RelativeLayout
@@ -69,8 +69,6 @@
             android:switchMinWidth="50dp"
             android:theme="@style/notificationSwitch"
             tools:ignore="TouchTargetSizeCheck" />
-
-
     </RelativeLayout>
 
     <RelativeLayout
@@ -79,8 +77,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_border"
         android:layout_marginTop="50dp">
-
-
         <ImageView
             android:id="@+id/edit_icon"
             android:layout_width="40dp"
@@ -110,6 +106,8 @@
 
 
     </RelativeLayout>
+
+
 
     <RelativeLayout
         android:id="@+id/language"
@@ -145,8 +143,6 @@
             android:layout_centerVertical="true"
             android:src="@drawable/right_mode_icon"
             tools:ignore="ContentDescription" />
-
-
     </RelativeLayout>
 
     <RelativeLayout

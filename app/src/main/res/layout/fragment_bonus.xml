@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.BonusFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        tools:context=".fragments.BonusFragment">
+
+        <ImageView
+            android:layout_width="500dp"
+            android:layout_height="200dp"
+            android:id="@+id/fireworksImg"
+            android:visibility="gone"
+            android:src="@drawable/bonus"
+            android:contentDescription="fireworks" />
+
+        <TextView
+            android:id="@+id/tvBonus"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:text="Bonus"
+            android:gravity="center"
+            android:layout_margin="20dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:id="@+id/useBonus"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/round_back_secondary_100"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:text="Clicca qui per usare il bonus"
+            android:textAllCaps="false"
+            android:textColor="@color/Primary"
+            android:visibility="gone"/>
+        <ImageView
+            android:layout_width="500dp"
+            android:layout_height="200dp"
+            android:id="@+id/UseBonusQR"
+            android:visibility="gone"
+            android:src="@drawable/bonus"
+            android:contentDescription="generated QR Bonus" />
+    </LinearLayout>
+</ScrollView>
