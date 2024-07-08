@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Zena Party</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="goToLogin">Do you already have an account? Click here and login!</string>
     <string name="goToRegister">Not registered? Click here to create a new account!</string>
     <string name="places_prompt">Test</string>
@@ -76,8 +75,11 @@
     <string name="logout_dialog">Sei sicuro di voler fare il logout?</string>
     <string name="remove_review">Sei sicuro di voler rimuovere la tua recensione?</string>
     <string name="exit_dialog">Potresti avere dei dati non salvati. Sei sicuro di voler uscire dall\'app?</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
-    <string name="il_tuo_qr_code">I tuoi QR Code</string>
-    <string name="i_tuoi_sconti">I tuoi sconti</string>
+    <string name="crea_verifica_promo">Crea/Verifica promozione</string>
+    <string name="i_tuoi_sconti">Le tue promozioni</string>
+    <string name="crea_promo">Crea nuova promo</string>
+    <string name="confirm">Conferma</string>
+    <string name="hint_congratulazioni">Congratulazioni! Hai ricevuto...</string>
+    <string name="help_crea_verifica_promo">In questa sezione puoi trovare le promozioni da te create. Inoltre puoi creare nuove promo e convalidare quelle dei tuoi clienti.</string>
 </resources>

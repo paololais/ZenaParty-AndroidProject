@@ -1,12 +1,12 @@
 package com.example.zenaparty.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +32,10 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import com.example.zenaparty.R;
 import android.Manifest;
 import com.example.zenaparty.adapters.EventListAdapter;
-import com.example.zenaparty.models.CryptoUtils;
 import com.example.zenaparty.models.EventListInterface;
 import com.example.zenaparty.models.FilterDialogListener;
 import com.example.zenaparty.models.MyEvent;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -44,7 +44,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -59,6 +58,7 @@ public class HomeFragment extends Fragment
     private TextView tvSelectDate;
     private TextView tvNoEvents;
     private ProgressBar progressBar;
+    private FloatingActionButton fab;
     RecyclerView recyclerView;
     DatabaseReference database;
     EventListAdapter myAdapter;
@@ -67,6 +67,8 @@ public class HomeFragment extends Fragment
     String newFormattedDate;
     private SharedPreferences sharedPreferences;
     private boolean isNewlyCreated = true;
+    private boolean isFabOpen = false;
+    private boolean isScanningQR;
     final Calendar calendar = Calendar.getInstance();
     final int year = calendar.get(Calendar.YEAR);
     final int month = calendar.get(Calendar.MONTH);
@@ -74,6 +76,7 @@ public class HomeFragment extends Fragment
 
     boolean isParty = true, isSagre = true, isMusica = true, isSport = true, isAltro = true;
 
+    private ActivityResultLauncher<ScanOptions> qrCodeLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,6 +92,15 @@ public class HomeFragment extends Fragment
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+
+        qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() == null) {
+                Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Scanned Successfully", Toast.LENGTH_SHORT).show();
+                handleScannedQR(result.getContents());
+            }
+        });
     }
 
     @Override
@@ -108,7 +120,8 @@ public class HomeFragment extends Fragment
         Button btnDecreaseDay = view.findViewById(R.id.btnDecreaseDay);
         ImageButton btnFilter = view.findViewById(R.id.btnFilter);
         ImageButton btnRefresh = view.findViewById(R.id.btnRefresh);
-        FloatingActionButton fab = view.findViewById(R.id.qr_scan);
+
+        fab = view.findViewById(R.id.fab_main);
         progressBar = view.findViewById(R.id.progressBar);
 
         sharedPreferences = requireActivity().getSharedPreferences("SavedValues", Context.MODE_PRIVATE);
@@ -162,11 +175,11 @@ public class HomeFragment extends Fragment
             myAdapter.notifyDataSetChanged();
 
             filterEventsByType();
+            if (!fab.isShown()) fab.show();
         }
 
 
         tvSelectDate.setOnClickListener(v -> {
-
             DatePickerDialog dialog = new DatePickerDialog(getActivity(), (view1, year, month, dayOfMonth) -> {
                 calendar.set(year, month, dayOfMonth);
 
@@ -180,7 +193,6 @@ public class HomeFragment extends Fragment
                 filterEventsByType();
             },year, month,day);
             dialog.show();
-            fab.show();
 
         });
         // Listener per il pulsante per aumentare il giorno
@@ -194,7 +206,7 @@ public class HomeFragment extends Fragment
             SimpleDateFormat newFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             newFormattedDate = newFormat.format(calendar.getTime());
             filterEventsByType();
-            fab.show();
+            if (!fab.isShown()) fab.show();
         });
         // Listener per il pulsante per decrementare il giorno
         btnDecreaseDay.setOnClickListener(v -> {
@@ -207,20 +219,14 @@ public class HomeFragment extends Fragment
             SimpleDateFormat newFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             newFormattedDate = newFormat.format(calendar.getTime());
             filterEventsByType();
-            fab.show();
+            if (!fab.isShown()) fab.show();
         });
         btnFilter.setOnClickListener(view13 -> openFilterDialog());
 
         btnRefresh.setOnClickListener(view12 -> readDatabase(database));
 
-        fab.setOnClickListener(view1 -> {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                    != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-            } else {
-                // Permesso già garantito, avvia l'uso della fotocamera
-                showCamera();
-            }
+        fab.setOnClickListener(v -> {
+            checkCameraPermissionAndLaunch();
         });
 
         recyclerView.addOnScrollListener(new OnScrollListener() {
@@ -229,7 +235,7 @@ public class HomeFragment extends Fragment
                 super.onScrolled(recyclerView, dx, dy);
                 if (dy > 0 && fab.isShown()) {
                     fab.hide();
-                } else if (dy < 0 && !fab.isShown()) {
+                } else {
                     fab.show();
                 }
             }
@@ -389,9 +395,17 @@ public class HomeFragment extends Fragment
 
         filterEventsByType();
     }
+    private void checkCameraPermissionAndLaunch() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+        } else {
+            // Permesso già garantito, avvia l'uso della fotocamera
+            showCamera();
+        }
+    }
     private void showCamera() {
         ScanOptions options = new ScanOptions();
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
         options.setPrompt("Scan QR Code");
         options.setCameraId(0);
         options.setBeepEnabled(true);
@@ -400,42 +414,39 @@ public class HomeFragment extends Fragment
 
         qrCodeLauncher.launch(options);
     }
+    private void handleScannedQR(String qrContent) {
+        BonusFragment bonusFragment = new BonusFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("bonus", qrContent);
+        bonusFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.flFragment, bonusFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    private void showDiscountVerificationDialog(String discountCode) {
+        // Qui mostrerai un dialog che verifica lo sconto
+        // Esempio di un dialog di conferma
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Verifica Sconto");
+        builder.setMessage("Sconto verificato con successo.\nDesideri confermare l'utilizzo dello sconto?");
+        builder.setPositiveButton("Conferma", (dialog, which) -> {
+            // Esegui azioni di conferma dello sconto (es. invia al server, ecc.)
+            Toast.makeText(requireContext(), "Sconto confermato", Toast.LENGTH_SHORT).show();
+            // Esempio di azioni post-conferma (es. navigazione o altro)
+        });
+        builder.setNegativeButton("Annulla", (dialog, which) -> {
+            // Azioni da eseguire se l'utente annulla la conferma dello sconto
+            Toast.makeText(requireContext(), "Conferma annullata", Toast.LENGTH_SHORT).show();
+        });
+        builder.show();
+    }
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted-> {
                 if(isGranted){
                     showCamera();
-                } else {}
+                }
             });
-
-    private ActivityResultLauncher<ScanOptions> qrCodeLauncher = registerForActivityResult(new ScanContract(), result->{
-        if(result.getContents() == null) {
-            Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_SHORT).show();
-        } else {
-            try {
-                String scannedData = result.getContents();
-                byte[] salt = Base64.decode(scannedData.substring(0, 24), Base64.DEFAULT); // La lunghezza del salt codificato in base64 è 24 caratteri
-                String encryptedMessage = scannedData.substring(24);
-
-                // Decriptare il messaggio
-                String password = "supersegreta";
-                String decryptedMessage = CryptoUtils.decrypt(encryptedMessage, password, salt);
-
-                // Passare il messaggio decrittato al fragment BonusFragment
-                BonusFragment bonusFragment = new BonusFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("bonus", decryptedMessage);
-                bonusFragment.setArguments(bundle);
-                FragmentManager fragmentManager = getParentFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.flFragment, bonusFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            } catch (Exception e) {
-                Toast.makeText(requireContext(), "Error decrypting message", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-        }
-    });
-
-
 }

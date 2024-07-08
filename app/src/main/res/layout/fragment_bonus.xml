@@ -1,54 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".fragments.BonusFragment">
-    <LinearLayout
+
+
+    <ImageView
+        android:id="@+id/goBackBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_goback_foreground"
+        app:tint="@color/black"
+        tools:ignore="ContentDescription" />
+
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        tools:context=".fragments.BonusFragment">
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:layout_width="500dp"
-            android:layout_height="200dp"
-            android:id="@+id/fireworksImg"
-            android:visibility="gone"
-            android:src="@drawable/bonus"
-            android:contentDescription="fireworks" />
-
-        <TextView
-            android:id="@+id/tvBonus"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:text="Bonus"
-            android:gravity="center"
-            android:layout_margin="20dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".fragments.BonusFragment">
 
-        <TextView
-            android:id="@+id/useBonus"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/round_back_secondary_100"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:text="Clicca qui per usare il bonus"
-            android:textAllCaps="false"
-            android:textColor="@color/Primary"
-            android:visibility="gone"/>
-        <ImageView
-            android:layout_width="500dp"
-            android:layout_height="200dp"
-            android:id="@+id/UseBonusQR"
-            android:visibility="gone"
-            android:src="@drawable/bonus"
-            android:contentDescription="generated QR Bonus" />
-    </LinearLayout>
-</ScrollView>
+            <ImageView
+                android:id="@+id/fireworksImg"
+                android:layout_width="500dp"
+                android:layout_height="200dp"
+                android:contentDescription="fireworks"
+                android:src="@drawable/bonus"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvBonus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:gravity="center"
+                android:text="Bonus"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/useBonus"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/round_back_secondary_100"
+                android:gravity="center"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
+                android:text="Clicca qui per usare il bonus"
+                android:textAllCaps="false"
+                android:textColor="@color/Primary"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/UseBonusQR"
+                android:layout_width="500dp"
+                android:layout_height="200dp"
+                android:contentDescription="generated QR Bonus"
+                android:src="@drawable/bonus"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

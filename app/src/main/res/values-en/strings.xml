@@ -78,6 +78,10 @@
     <string name="remove_review">Are you sure you want to remove your review?</string>
     <string name="exit_dialog">You may have unsaved data. Are you sure you want to exit the app?</string>
     <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
-    <string name="il_tuo_qr_code">Il tuo QR Code</string>
+    <string name="crea_verifica_promo">Il tuo QR Code</string>
     <string name="i_tuoi_sconti">I tuoi sconti</string>
+    <string name="crea_promo">Crea nuova promo</string>
+    <string name="confirm">Conferma</string>
+    <string name="hint_congratulazioni">Congratulazioni! Hai ricevuto...</string>
+    <string name="help_crea_verifica_promo">In questa sezione puoi trovare le promozioni da te create. Inoltre puoi creare nuove promo e convalidare quelle dei tuoi clienti.</string>
 </resources>

@@ -1,4 +1,5 @@
 package com.example.zenaparty.adapters;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -8,9 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.zenaparty.R;
+import com.example.zenaparty.fragments.QRCodeDialogFragment;
+import com.example.zenaparty.models.QRCodeData;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -21,10 +25,12 @@ import java.util.List;
 
 public class QRCodeAdapter extends RecyclerView.Adapter<QRCodeAdapter.QRCodeViewHolder> {
 
-    private List<String> qrDataList;
+    private static List<QRCodeData> qrDataList;
+    private static Context context;
 
-    public QRCodeAdapter(List<String> qrDataList) {
+    public QRCodeAdapter(List<QRCodeData> qrDataList, Context context) {
         this.qrDataList = qrDataList;
+        this.context = context;
     }
 
     @NonNull
@@ -36,10 +42,11 @@ public class QRCodeAdapter extends RecyclerView.Adapter<QRCodeAdapter.QRCodeView
 
     @Override
     public void onBindViewHolder(@NonNull QRCodeViewHolder holder, int position) {
-        String data = qrDataList.get(position);
-        Bitmap qrCodeBitmap = generateQRCode(data);
+        String message = qrDataList.get(position).getMessage();
+        String qrCodeId = qrDataList.get(position).getQrCodeId();
+        Bitmap qrCodeBitmap = generateQRCode(qrCodeId, 200);
         holder.qrCodeImageView.setImageBitmap(qrCodeBitmap);
-        holder.qrCodeTV.setText(data);
+        holder.qrCodeTV.setText(message);
     }
 
     @Override
@@ -55,12 +62,21 @@ public class QRCodeAdapter extends RecyclerView.Adapter<QRCodeAdapter.QRCodeView
             super(itemView);
             qrCodeImageView = itemView.findViewById(R.id.qrCodeImageView);
             qrCodeTV = itemView.findViewById(R.id.qrCodeTV);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    QRCodeData qrCodeData = qrDataList.get(position);
+                    QRCodeDialogFragment dialogFragment = QRCodeDialogFragment.newInstance(qrCodeData.getQrCodeId());
+                    dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "QRCodeDialogFragment");
+                }
+            });
         }
     }
 
-    private Bitmap generateQRCode(String data) {
+    public static Bitmap generateQRCode(String data, int dim) {
         try {
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, 200, 200);
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, dim, dim);
             int width = bitMatrix.getWidth();
             int height = bitMatrix.getHeight();
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);

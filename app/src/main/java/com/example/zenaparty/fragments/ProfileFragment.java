@@ -95,7 +95,12 @@ public class ProfileFragment extends Fragment {
         });
 
         myDiscountsRL.setOnClickListener(view3-> {
-
+            MyDiscountsFragment myDiscountsFragment = new MyDiscountsFragment();
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.flFragment, myDiscountsFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
         });
 
     }

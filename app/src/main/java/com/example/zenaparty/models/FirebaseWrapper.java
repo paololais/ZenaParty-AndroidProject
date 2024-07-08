@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 
 import com.example.zenaparty.R;
 import com.example.zenaparty.adapters.EventListAdapter;
+import com.example.zenaparty.adapters.QRCodeAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,7 +28,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 // NOTE: With firebase we have to do a network request --> We need to add the permission in the AndroidManifest.xml
 //      -> ref: https://developer.android.com/training/basics/network-ops/connecting
@@ -140,7 +143,6 @@ public class FirebaseWrapper {
     public interface OnQRCodeFoundListener {
         void onQRCodeFound(boolean found);
     }
-
     //database
     public static class Database {
         private static final DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pmappfirsttry-default-rtdb.europe-west1.firebasedatabase.app/").getReference("events");
@@ -556,58 +558,80 @@ public class FirebaseWrapper {
             });
         }
 
-        //method to check if a QR code exists in the DB
-        public static void checkQRCodeValidity(String QRCodeID, OnQRCodeFoundListener listener){
-            DatabaseReference QRCodesRef = FirebaseDatabase.getInstance().getReference("qr_codes");
-
-            QRCodesRef.child(QRCodeID).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    listener.onQRCodeFound(snapshot.exists());
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    // Gestisci eventuali errori durante il recupero dei dati
-                    Log.e("FirebaseWrapper", "Error checking QR Code Validity: " + error.getMessage());
-                }
-            });
-        }
-
-        public static void CreateQRCode(String QRMessage){
+        public static void CreateQRCode(Context context, String QRMessage){
             FirebaseAuth auth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = auth.getCurrentUser();
             if (currentUser != null) {
                 // Ottieni l'ID dell'utente corrente
                 String currentUserId = currentUser.getUid();
                 DatabaseReference QRCodesRef = FirebaseDatabase.getInstance().getReference("qr_codes");
-                QRCodesRef.child(currentUserId).setValue(QRMessage)
-                        .addOnSuccessListener(aVoid -> Log.d("FirebaseWrapper", "New QR Code saved successfully"))
-                        .addOnFailureListener(e -> Log.e("FirebaseWrapper", "Error creating new QR Code: " + e.getMessage()));
+                String qrId = QRCodesRef.push().getKey();
+
+                assert qrId != null;
+                QRCodeData qrCodeData = new QRCodeData(qrId, QRMessage, currentUserId);
+                QRCodesRef.child(qrId).setValue(qrCodeData)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(context, "New QR Code created", Toast.LENGTH_SHORT).show();
+                            Log.d("FirebaseWrapper", "New QR Code saved successfully");
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(context, "Error creating new QR Code", Toast.LENGTH_SHORT).show();
+                            Log.e("FirebaseWrapper", "Error creating new QR Code: " + e.getMessage());
+                        });
             }
         }
 
-        public static void ReadQRCode(String qrCodeID, TextView messageTV){
-            DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeID);
+        public static void ReadQRCode(String qrCodeID, TextView messageTV, OnQRCodeFoundListener listener){
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                // Ottieni l'ID dell'utente corrente
+                String currentUserId = currentUser.getUid();
+                DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeID);
+                QRCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            DatabaseReference discountsRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId).child("discounts");
+                            discountsRef.child(qrCodeID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        if (Boolean.TRUE.equals(snapshot.getValue(Boolean.class))) {
+                                            listener.onQRCodeFound(false);
+                                            messageTV.setText("Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni");
 
-            QRCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        String message = dataSnapshot.getValue(String.class);
-                        messageTV.setText(message);
-                    } else {
-                        // Lo username non esiste nel database
-                        Log.d("FirebaseWrapper", "QR Code non trovato nel database");
+                                        } else {
+                                            //codice già usato
+                                            listener.onQRCodeFound(false);
+                                            messageTV.setText("Siamo spiacenti: hai già utilizzato questa promo");
+                                        }
+                                    } else {
+                                        //codice non trovato nel db utente
+                                        listener.onQRCodeFound(true);
+                                        String message = dataSnapshot.child("message").getValue(String.class);
+                                        messageTV.setText(message);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e("FirebaseWrapper", "Errore durante il recupero del QR Code: " + error.getMessage());
+                                }
+                            });
+                        } else {
+                            listener.onQRCodeFound(false);
+                            messageTV.setText("Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.");
+                        }
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // Gestisci eventuali errori di accesso al database
-                    Log.e("FirebaseWrapper", "Errore durante il recupero del QR Code: " + databaseError.getMessage());
-                }
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Gestisci eventuali errori di accesso al database
+                        Log.e("FirebaseWrapper", "Errore durante il recupero del QR Code: " + databaseError.getMessage());
+                    }
+                });
+            }
         }
 
         public static void DeleteQRCode(String qrCodeID){
@@ -619,15 +643,211 @@ public class FirebaseWrapper {
                 DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeID);
 
                 QRCodeRef.removeValue()
-                        .addOnSuccessListener(aVoid -> Log.d("FirebaseWrapper", "QR Code ddeleted successfully"))
+                        .addOnSuccessListener(aVoid -> Log.d("FirebaseWrapper", "QR Code deleted successfully"))
                         .addOnFailureListener(e-> Log.e("FirebaseWrapper", "Error while deleting QR code"));
             }
         }
 
-        public static void GetUserQrCodes(){
+        public static void GetUserQrCodes(List<QRCodeData> list, QRCodeAdapter qrCodeAdapter, ProgressBar progressBar, TextView noQrTV){
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                // Ottieni l'ID dell'utente corrente
+                String currentUserId = currentUser.getUid();
+                DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes");
 
+                list.clear();
+                QRCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            QRCodeData qrCode = dataSnapshot.getValue(QRCodeData.class);
+                            assert qrCode != null;
+                            if (qrCode.getQrUserId().equals(currentUserId)) {
+                                list.add(qrCode);
+                            }
+                        }
+                        qrCodeAdapter.notifyDataSetChanged();
+                        progressBar.setVisibility(View.GONE);
+                        if (list.isEmpty()) {
+                            noQrTV.setVisibility(View.VISIBLE);
+                        } else {
+                            noQrTV.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        progressBar.setVisibility(View.GONE);
+                        if (list.isEmpty()) {
+                            noQrTV.setVisibility(View.VISIBLE);
+                        } else {
+                            noQrTV.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
         }
 
+        public static void AddDiscount(String qrId){
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                String currentUserId = currentUser.getUid();
+                DatabaseReference discountsRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId).child("discounts");
+                discountsRef.child(qrId).setValue(true);
+            }
+        }
+        public static void GetUserDiscounts(List<QRCodeData> list, QRCodeAdapter qrCodeAdapter, ProgressBar progressBar, TextView noDiscountsTv) {
+            progressBar.setVisibility(View.VISIBLE);
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                // Ottieni l'ID dell'utente corrente
+                String currentUserId = currentUser.getUid();
+                DatabaseReference userDiscountsRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId).child("discounts");
+                list.clear();
+                userDiscountsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        list.clear();
 
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot discountSnapshot : dataSnapshot.getChildren()) {
+                                String qrCodeId = discountSnapshot.getKey();
+
+                                assert qrCodeId != null;
+                                DatabaseReference qrCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeId);
+                                qrCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot qrCodeSnapshot) {
+                                        if (qrCodeSnapshot.exists()) {
+                                            String message = qrCodeSnapshot.child("message").getValue(String.class);
+                                            QRCodeData qrCodeData = new QRCodeData(qrCodeId+" "+currentUserId, message,currentUserId);
+                                            list.add(qrCodeData);
+                                        }
+
+                                        qrCodeAdapter.notifyDataSetChanged();
+                                        progressBar.setVisibility(View.GONE);
+
+                                        if (list.isEmpty()) {
+                                            noDiscountsTv.setVisibility(View.VISIBLE);
+                                        } else {
+                                            noDiscountsTv.setVisibility(View.GONE);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        progressBar.setVisibility(View.GONE);
+                                        Log.e("FirebaseWrapper", "Error fetching QR code data: " + databaseError.getMessage());
+                                    }
+                                });
+                            }
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            noDiscountsTv.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        progressBar.setVisibility(View.GONE);
+                        Log.e("FirebaseWrapper", "Error fetching user discounts: " + databaseError.getMessage());
+                    }
+                });
+
+            }
+        }
+
+        public static void VerifyAndValidateDiscount(String qrCodeId,Context context){
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser != null) {
+                String currentUserId = currentUser.getUid();
+                //la stringa della promo è costituita da 2 parti: 1)qrcode Id, 2) userId dell'utente che ha scannerizzato la promo
+                String[] parts = qrCodeId.split(" ");
+                String extractedBonusId;
+                String extractedPromoUserID;
+                if (parts.length == 2) {
+                    extractedBonusId = parts[0];
+                    extractedPromoUserID = parts[1];
+                } else {
+                    builder.setTitle("Attenzione");
+                    builder.setMessage("Impossibile procedere: promo non esistente o formato non valido.");
+                    builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                    builder.show();
+                    return;
+                }
+
+                DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(extractedBonusId);
+
+                QRCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            //codice qr valido
+                            String qrUserId = dataSnapshot.child("qrUserId").getValue(String.class);
+                            assert qrUserId != null;
+                            if (qrUserId.equals(currentUserId)) {
+                                // ok l'utente attuale è il creatore della promo
+                                DatabaseReference discountsRef = FirebaseDatabase.getInstance().getReference("users").child(extractedPromoUserID).child("discounts");
+                                discountsRef.child(extractedBonusId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if (snapshot.exists()){
+                                            if (Boolean.TRUE.equals(snapshot.getValue(Boolean.class))){
+                                                //codice ok
+                                                discountsRef.child(extractedBonusId).setValue(false);
+                                                builder.setTitle("Verifica Sconto");
+                                                String message = Objects.requireNonNull(dataSnapshot.child("message").getValue()).toString();
+                                                builder.setMessage("Sconto verificato con successo. Promo del cliente:\n\n"+message);
+                                                builder.setNeutralButton("Ok", (dialog,which)-> dialog.dismiss());
+                                                builder.show();
+                                            } else {
+                                                builder.setTitle("Attenzione");
+                                                builder.setMessage("Sconto già utilizzato");
+                                                builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                                                builder.show();
+                                            }
+                                        } else {
+                                            builder.setTitle("Attenzione");
+                                            builder.setMessage("Sconto mai scannerizzato dal cliente");
+                                            builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                                            builder.show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Log.e("FirebaseWrapper", "Errore durante il recupero del QR Code: " + error.getMessage());
+                                    }
+                                });
+                            } else {
+                                //codice scannerizzato non è stato creato dall'utente attuale: non può convalidarlo
+                                builder.setTitle("Attenzione");
+                                builder.setMessage("Impossibile procedere: questa promo non è stata creata da te.");
+                                builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                                builder.show();
+                            }
+
+                        } else {
+                            //codice qr non esiste nel db
+                            builder.setTitle("Attenzione");
+                            builder.setMessage("Impossibile procedere: promo non esistente.");
+                            builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                            builder.show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Gestisci eventuali errori di accesso al database
+                        Log.e("FirebaseWrapper", "Errore durante il recupero del QR Code: " + databaseError.getMessage());
+                    }
+                });
+            }
+        }
     }
 }

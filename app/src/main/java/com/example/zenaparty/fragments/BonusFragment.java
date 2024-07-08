@@ -1,20 +1,31 @@
 package com.example.zenaparty.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.example.zenaparty.R;
+import com.example.zenaparty.adapters.QRCodeAdapter;
 import com.example.zenaparty.models.FirebaseWrapper;
-import com.example.zenaparty.models.MyEvent;
+import com.example.zenaparty.models.QRCodeData;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+
+import java.util.Objects;
 
 public class BonusFragment extends Fragment {
 
@@ -36,30 +47,44 @@ public class BonusFragment extends Fragment {
         TextView bonusTextView = view.findViewById(R.id.tvBonus);
         TextView useBonusTV = view.findViewById(R.id.useBonus);
         ImageView fireworksImg = view.findViewById(R.id.fireworksImg);
+        ImageView goBack = view.findViewById(R.id.goBackBtn);
+        ImageView useBonusQrImg = view.findViewById(R.id.UseBonusQR);
 
+        goBack.setOnClickListener(view1 -> requireActivity().onBackPressed());
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            String bonus = bundle.getString("bonus");
-            if(bonus!=null){
-                //first word is the bonus id, the rest is the message
-                int i = bonus.indexOf(' ');
-                String qrCodeID = bonus.substring(0, i);
+            String bonusId = bundle.getString("bonus");
+            if(bonusId!=null){
+                try {
+                    FirebaseWrapper.Database.ReadQRCode(bonusId,bonusTextView,QRfound->{
+                        if (QRfound){
+                            fireworksImg.setVisibility(View.VISIBLE);
+                            useBonusTV.setVisibility(View.VISIBLE);
 
-                FirebaseWrapper.Database.checkQRCodeValidity(qrCodeID, IsQRValid ->{
-                    if (IsQRValid) {
-                        fireworksImg.setVisibility(View.VISIBLE);
+                            useBonusTV.setOnClickListener(l->{
+                                String currentUserID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+                                String useBonusQr = bonusId + " " + currentUserID;
+                                Bitmap qrCodeBitmap = QRCodeAdapter.generateQRCode(useBonusQr, 200);
+                                if (qrCodeBitmap!=null){
+                                    useBonusQrImg.setImageBitmap(qrCodeBitmap);
+                                    useBonusQrImg.setVisibility(View.VISIBLE);
 
-                        String bonusMessage = bonus.substring(i);
-                        bonusTextView.setText(bonusMessage);
+                                    useBonusTV.setVisibility(View.GONE);
+                                    FirebaseWrapper.Database.AddDiscount(bonusId);
+                                } else {
+                                    Toast.makeText(requireContext(),"Error while generating QR Code", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e("FirebaseWrapper", "Invalid qrCodeID for Firebase key: " + bonusId);
+                    bonusTextView.setText("Il QR code scannerizzato non è valido. Riprova.");
+                }
 
-                        useBonusTV.setVisibility(View.VISIBLE);
-                    } else {
-                        bonusTextView.setText(R.string.qr_code_not_valid);
-                    }
-                });
             }
         }
-
     }
+
 }

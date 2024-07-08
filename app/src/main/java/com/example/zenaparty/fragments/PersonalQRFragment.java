@@ -1,11 +1,17 @@
 package com.example.zenaparty.fragments;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,21 +25,36 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.zenaparty.R;
 import com.example.zenaparty.adapters.EventListAdapter;
 import com.example.zenaparty.adapters.QRCodeAdapter;
 import com.example.zenaparty.models.FirebaseWrapper;
 import com.example.zenaparty.models.MyEvent;
+import com.example.zenaparty.models.QRCodeData;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalQRFragment extends Fragment {
+    private ExtendedFloatingActionButton fabCreate, fabVerify;
+    private ActivityResultLauncher<ScanOptions> qrCodeLauncher;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        qrCodeLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() == null) {
+                Toast.makeText(requireContext(), "Cancelled", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Scanned Successfully", Toast.LENGTH_SHORT).show();
+                FirebaseWrapper.Database.VerifyAndValidateDiscount(result.getContents(), requireContext());
+            }
+        });
 
     }
 
@@ -49,8 +70,10 @@ public class PersonalQRFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ImageView gobackBtn = view.findViewById(R.id.goBackBtn);
-        EditText qrMessageET = view.findViewById(R.id.qr_et);
-        TextView savebtn = view.findViewById(R.id.saveBtn);
+        ProgressBar progressBar = view.findViewById(R.id.progressBar);
+        TextView noQrTV = view.findViewById(R.id.tvNoQrs);
+        fabCreate = view.findViewById(R.id.fab_create_promo);
+        fabVerify = view.findViewById(R.id.fab_verify_discount);
 
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView);
         LinearLayout linearLayout = view.findViewById(R.id.linLayout);
@@ -68,34 +91,63 @@ public class PersonalQRFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.qrRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        List<String> qrDataList = new ArrayList<>();
-        qrDataList.add("https://example.com/1");
-        qrDataList.add("https://example.com/2");
-        qrDataList.add("https://example.com/3");
-
-        QRCodeAdapter adapter = new QRCodeAdapter(qrDataList);
+        List<QRCodeData> qrDataList = new ArrayList<>();
+        QRCodeAdapter adapter = new QRCodeAdapter(qrDataList, requireContext());
         recyclerView.setAdapter(adapter);
 
+        FirebaseWrapper.Database.GetUserQrCodes(qrDataList,adapter,progressBar,noQrTV);
 
         gobackBtn.setOnClickListener(view1 -> requireActivity().onBackPressed());
-        savebtn.setOnClickListener(v -> {
-            // hide keyboard
-            InputMethodManager manager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-            //get data
-            String qrMessage = qrMessageET.getText().toString();
-
-            if (qrMessage.isEmpty()) {
-                qrMessageET.setError("Compilare questo campo");
-                return;
-            }
-            FirebaseWrapper.Database.CreateQRCode(qrMessage);
-
+        fabCreate.setOnClickListener(l->{
+            showCreateDialog();
         });
-
-
-
+        fabVerify.setOnClickListener((l->{
+            checkCameraPermissionAndLaunch();
+        }));
     }
+
+    private void showCreateDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(R.string.crea_promo);
+        final EditText input = new EditText(requireContext());
+        input.setHint(R.string.hint_congratulazioni);
+        builder.setView(input);
+
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            String qrMessage = input.getText().toString();
+            if (!qrMessage.isEmpty()) {
+                FirebaseWrapper.Database.CreateQRCode(requireContext(), qrMessage);
+            } else {
+                input.setError("Compilare il campo");
+            }
+        });
+        builder.setNegativeButton(R.string.annulla, (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+    private void checkCameraPermissionAndLaunch() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+        } else {
+            // Permesso già garantito, avvia l'uso della fotocamera
+            showCamera();
+        }
+    }
+    private void showCamera() {
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Scan QR Code");
+        options.setCameraId(0);
+        options.setBeepEnabled(true);
+        options.setBarcodeImageEnabled(true);
+        options.setOrientationLocked(true);
+
+        qrCodeLauncher.launch(options);
+    }
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted-> {
+                if(isGranted){
+                    showCamera();
+                }
+            });
 }
