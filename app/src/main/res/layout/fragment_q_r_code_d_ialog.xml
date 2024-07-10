@@ -10,9 +10,19 @@
     <ImageView
         android:id="@+id/qrCodeImageView"
         android:layout_width="match_parent"
-        android:padding="10dp"
         android:layout_height="wrap_content"
-        android:scaleType="centerInside"/>
+        android:scaleType="centerInside"
+        android:contentDescription="@string/qr_code" />
+    <TextView
+        android:id="@+id/qrCodeTV"
+        android:gravity="center"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="100dp"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,24 +31,25 @@
         android:orientation="horizontal">
         <Button
             android:id="@+id/deleteButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:minWidth="150dp"
+            android:maxWidth="200dp"
             android:backgroundTint="#881F17"
-            android:layout_marginRight="5dp"
-            android:text="Rimuovi" />
+            android:layout_marginEnd="5dp"
+            android:text="@string/rimuovi"
+            tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         <Button
             android:id="@+id/downloadButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:minWidth="150dp"
+            android:maxWidth="200dp"
             android:backgroundTint="#017A6F"
-            android:layout_marginLeft="5dp"
-            android:text="Download" />
+            android:layout_marginStart="5dp"
+            android:text="@string/download"
+            tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
     </LinearLayout>
-
-
-
 </LinearLayout>

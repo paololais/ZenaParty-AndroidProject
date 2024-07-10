@@ -47,7 +47,7 @@ public class MyDiscountsFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.qrRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<QRCodeData> qrDataList = new ArrayList<>();
-        QRCodeAdapter adapter = new QRCodeAdapter(qrDataList, requireContext());
+        QRCodeAdapter adapter = new QRCodeAdapter(qrDataList, requireContext(), false, null);
         recyclerView.setAdapter(adapter);
 
         gobackBtn.setOnClickListener(view1 -> requireActivity().onBackPressed());

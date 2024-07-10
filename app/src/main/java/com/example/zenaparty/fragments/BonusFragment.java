@@ -1,7 +1,6 @@
 package com.example.zenaparty.fragments;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,12 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.example.zenaparty.R;
 import com.example.zenaparty.adapters.QRCodeAdapter;
 import com.example.zenaparty.models.FirebaseWrapper;
-import com.example.zenaparty.models.QRCodeData;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
 
 import java.util.Objects;
 
@@ -80,7 +74,7 @@ public class BonusFragment extends Fragment {
                     });
                 } catch (Exception e) {
                     Log.e("FirebaseWrapper", "Invalid qrCodeID for Firebase key: " + bonusId);
-                    bonusTextView.setText("Il QR code scannerizzato non è valido. Riprova.");
+                    bonusTextView.setText(R.string.qr_not_valid_retry);
                 }
 
             }

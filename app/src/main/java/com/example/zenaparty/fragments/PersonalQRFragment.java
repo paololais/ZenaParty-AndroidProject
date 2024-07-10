@@ -2,10 +2,18 @@ package com.example.zenaparty.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -16,22 +24,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.zenaparty.R;
-import com.example.zenaparty.adapters.EventListAdapter;
 import com.example.zenaparty.adapters.QRCodeAdapter;
 import com.example.zenaparty.models.FirebaseWrapper;
-import com.example.zenaparty.models.MyEvent;
+import com.example.zenaparty.models.OnQRCodeDeletedListener;
 import com.example.zenaparty.models.QRCodeData;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -41,9 +37,12 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonalQRFragment extends Fragment {
-    private ExtendedFloatingActionButton fabCreate, fabVerify;
+public class PersonalQRFragment extends Fragment implements OnQRCodeDeletedListener {
     private ActivityResultLauncher<ScanOptions> qrCodeLauncher;
+    private List<QRCodeData> qrDataList;
+    private QRCodeAdapter adapter;
+    private ProgressBar progressBar;
+    private TextView noQrTV;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,10 +69,10 @@ public class PersonalQRFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ImageView gobackBtn = view.findViewById(R.id.goBackBtn);
-        ProgressBar progressBar = view.findViewById(R.id.progressBar);
-        TextView noQrTV = view.findViewById(R.id.tvNoQrs);
-        fabCreate = view.findViewById(R.id.fab_create_promo);
-        fabVerify = view.findViewById(R.id.fab_verify_discount);
+        progressBar = view.findViewById(R.id.progressBar);
+        noQrTV = view.findViewById(R.id.tvNoQrs);
+        ExtendedFloatingActionButton fabCreate = view.findViewById(R.id.fab_create_promo);
+        ExtendedFloatingActionButton fabVerify = view.findViewById(R.id.fab_verify_discount);
 
         BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottomNavigationView);
         LinearLayout linearLayout = view.findViewById(R.id.linLayout);
@@ -91,19 +90,15 @@ public class PersonalQRFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.qrRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<QRCodeData> qrDataList = new ArrayList<>();
-        QRCodeAdapter adapter = new QRCodeAdapter(qrDataList, requireContext());
+        qrDataList = new ArrayList<>();
+        adapter = new QRCodeAdapter(qrDataList, requireContext(), true, this);
         recyclerView.setAdapter(adapter);
 
         FirebaseWrapper.Database.GetUserQrCodes(qrDataList,adapter,progressBar,noQrTV);
 
         gobackBtn.setOnClickListener(view1 -> requireActivity().onBackPressed());
-        fabCreate.setOnClickListener(l->{
-            showCreateDialog();
-        });
-        fabVerify.setOnClickListener((l->{
-            checkCameraPermissionAndLaunch();
-        }));
+        fabCreate.setOnClickListener(l-> showCreateDialog());
+        fabVerify.setOnClickListener((l-> checkCameraPermissionAndLaunch()));
     }
 
     private void showCreateDialog(){
@@ -116,7 +111,9 @@ public class PersonalQRFragment extends Fragment {
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
             String qrMessage = input.getText().toString();
             if (!qrMessage.isEmpty()) {
-                FirebaseWrapper.Database.CreateQRCode(requireContext(), qrMessage);
+                FirebaseWrapper.Database.CreateQRCode(requireContext(), qrMessage, success->{
+                    if(success) FirebaseWrapper.Database.GetUserQrCodes(qrDataList,adapter,progressBar,noQrTV);
+                });
             } else {
                 input.setError("Compilare il campo");
             }
@@ -144,10 +141,27 @@ public class PersonalQRFragment extends Fragment {
 
         qrCodeLauncher.launch(options);
     }
-    private ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted-> {
                 if(isGranted){
                     showCamera();
                 }
             });
+
+    @Override
+    public void onQRCodeDeleted(String qrCodeId) {
+        // Rimuovere l'elemento dalla lista e notificare l'adapter
+        for (int i = 0; i < qrDataList.size(); i++) {
+            if (qrDataList.get(i).getQrCodeId().equals(qrCodeId)) {
+                qrDataList.remove(i);
+                adapter.notifyItemRemoved(i);
+                break;
+            }
+        }
+
+        // Controllare se la lista è vuota per mostrare il messaggio appropriato
+        if (qrDataList.isEmpty()) {
+            noQrTV.setVisibility(View.VISIBLE);
+        }
+    }
 }

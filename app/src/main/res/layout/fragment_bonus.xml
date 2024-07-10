@@ -17,8 +17,7 @@
         tools:ignore="ContentDescription" />
 
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -33,7 +32,7 @@
                 android:id="@+id/fireworksImg"
                 android:layout_width="500dp"
                 android:layout_height="200dp"
-                android:contentDescription="fireworks"
+                android:contentDescription="@string/fireworks"
                 android:src="@drawable/bonus"
                 android:visibility="gone" />
 
@@ -43,7 +42,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 android:gravity="center"
-                android:text="Bonus"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
@@ -57,7 +55,7 @@
                 android:gravity="center"
                 android:paddingStart="30dp"
                 android:paddingEnd="30dp"
-                android:text="Clicca qui per usare il bonus"
+                android:text="@string/clicca_qui_per_usare_il_bonus"
                 android:textAllCaps="false"
                 android:textColor="@color/Primary"
                 android:visibility="gone" />
@@ -66,7 +64,7 @@
                 android:id="@+id/UseBonusQR"
                 android:layout_width="500dp"
                 android:layout_height="200dp"
-                android:contentDescription="generated QR Bonus"
+                android:contentDescription="@string/generated_qr_bonus"
                 android:src="@drawable/bonus"
                 android:visibility="gone" />
         </LinearLayout>

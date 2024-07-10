@@ -58,7 +58,7 @@ public class ModificaProFiloFragment extends Fragment {
             checkUsernameAvailability(username.getText().toString(), isUsernameAvailable -> {
                 if (isUsernameAvailable) {
                     Log.d("ModificaProfFragment", "Attempting to change username");
-                    FirebaseWrapper.Database.modifyUsername(getContext(), username.getText().toString(), progressBar, okUsername);
+                    FirebaseWrapper.Database.modifyUsername(getContext(), username.getText().toString(), progressBar, okUsername, username);
                 } else {
                     username.setError("Username non disponibile.");
                 }
@@ -76,13 +76,7 @@ public class ModificaProFiloFragment extends Fragment {
         usersRef.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // Lo username è già in uso
-                    callback.onUsernameAvailabilityChecked(false);
-                } else {
-                    // Lo username è disponibile
-                    callback.onUsernameAvailabilityChecked(true);
-                }
+                callback.onUsernameAvailabilityChecked(!dataSnapshot.exists());
             }
 
             @Override

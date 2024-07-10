@@ -48,7 +48,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/help_crea_verifica_promo" />
+            android:text="@string/help_crea_verifica_promo"
+            tools:ignore="VisualLintLongText" />
 
         <View
             android:layout_width="match_parent"
@@ -62,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="30dp"
-            android:text="Nessun QR code aggiunto.\nI codici da te creati verranno mostrati qui."
+            android:text="@string/nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui"
             android:textAlignment="center"
             android:textSize="15sp"
             android:textStyle="italic"
@@ -89,8 +90,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="16dp"
-        android:contentDescription="Verify Discount"
-        android:text="Verifica"
+        android:text="@string/verifica"
         app:icon="@drawable/baseline_qr_code_scanner_24"
         app:layout_constraintBottom_toBottomOf="@+id/linLayout"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -101,8 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:contentDescription="Verify Discount"
-        android:text="Crea"
+        android:text="@string/crea"
         app:icon="@drawable/baseline_add_circle_outline_24"
         app:layout_constraintBottom_toBottomOf="@id/linLayout"
         app:layout_constraintStart_toStartOf="@+id/linLayout" />

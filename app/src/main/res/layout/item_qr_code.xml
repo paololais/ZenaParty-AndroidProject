@@ -12,14 +12,14 @@
         android:layout_margin="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="centerInside" />
+        android:scaleType="centerInside"
+        android:contentDescription="@string/qr_code" />
     <TextView
         android:id="@+id/qrCodeTV"
-        android:text="Ciao"
         android:layout_margin="20dp"
         android:textColor="@color/white"
         android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="100dp"/>
 
 </LinearLayout>

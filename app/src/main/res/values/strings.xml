@@ -17,7 +17,7 @@
     <string name="orario">Orario:</string>
     <string name="prezzo">Prezzo:</string>
     <string name="tipologia">Tipologia:</string>
-    <string name="i_tuoi_eventi">I tuoi eventi</string>
+    <string name="i_tuoi_eventi">Eventi creati</string>
     <string name="nessun_evento_inserito">Nessun evento inserito.</string>
     <string name="i_tuoi_preferiti">I tuoi preferiti</string>
     <string name="seleziona_categoria">Seleziona categoria</string>
@@ -76,10 +76,24 @@
     <string name="remove_review">Sei sicuro di voler rimuovere la tua recensione?</string>
     <string name="exit_dialog">Potresti avere dei dati non salvati. Sei sicuro di voler uscire dall\'app?</string>
     <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
-    <string name="crea_verifica_promo">Crea/Verifica promozione</string>
-    <string name="i_tuoi_sconti">Le tue promozioni</string>
+    <string name="crea_verifica_promo">Crea/Verifica promo</string>
+    <string name="i_tuoi_sconti">Promo da utilizzare</string>
     <string name="crea_promo">Crea nuova promo</string>
     <string name="confirm">Conferma</string>
     <string name="hint_congratulazioni">Congratulazioni! Hai ricevuto...</string>
     <string name="help_crea_verifica_promo">In questa sezione puoi trovare le promozioni da te create. Inoltre puoi creare nuove promo e convalidare quelle dei tuoi clienti.</string>
+    <string name="qr_not_valid_retry">Il QR code scannerizzato non è valido. Riprova.</string>
+    <string name="nessuna_promozione_aggiunta">Nessuna promozione aggiunta.</string>
+    <string name="verifica">Verifica</string>
+    <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">Nessun QR code aggiunto.\nI codici da te creati verranno mostrati qui.</string>
+    <string name="crea">Crea</string>
+    <string name="fireworks" translatable="false">fireworks</string>
+    <string name="clicca_qui_per_usare_il_bonus">Clicca qui per usare il bonus</string>
+    <string name="generated_qr_bonus" translatable="false">generated QR Bonus</string>
+    <string name="qr_code" translatable="false">QR Code</string>
+    <string name="rimuovi">Rimuovi</string>
+    <string name="download" translatable="false">Download</string>
+    <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni]]></string>
+    <string name="already_used">Siamo spiacenti: hai già utilizzato questa promo</string>
+    <string name="no_corrispondenza">Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.</string>
 </resources>

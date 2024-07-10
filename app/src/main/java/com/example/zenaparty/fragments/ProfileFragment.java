@@ -1,5 +1,7 @@
 package com.example.zenaparty.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,8 +58,17 @@ public class ProfileFragment extends Fragment {
 
         TextView usernameTv = view.findViewById(R.id.usernameTv);
 
-        FirebaseWrapper.Database.getAndSetUsername(usernameTv);
+        // Ottieni lo username dalle SharedPreferences
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", null);
 
+        if (username != null) {
+            // Se lo username esiste nelle SharedPreferences, impostalo nel TextView
+            usernameTv.setText(username);
+        } else {
+            // Se non esiste, ottienilo dal database e salvalo nelle SharedPreferences
+            FirebaseWrapper.Database.getAndSetUsername(usernameTv, requireContext());
+        }
         settingImageView.setOnClickListener(view1 -> {
             SettingsFragment SettingsFragment = new SettingsFragment();
             FragmentManager fragmentManager = getParentFragmentManager();

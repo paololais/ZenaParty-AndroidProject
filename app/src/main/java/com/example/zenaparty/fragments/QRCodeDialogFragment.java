@@ -3,9 +3,10 @@ package com.example.zenaparty.fragments;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,22 +24,29 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.zenaparty.R;
-import com.example.zenaparty.adapters.QRCodeAdapter;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
+import com.example.zenaparty.models.FirebaseWrapper;
+import com.example.zenaparty.models.OnQRCodeDeletedListener;
 
 public class QRCodeDialogFragment extends DialogFragment {
 
+    private static final String ARG_QR_CODE_BYTE_ARRAY = "qr_code_byte_array";
+    private static final String ARG_QR_CODE_MESS = "qr_code_mess";
     private static final String ARG_QR_CODE_ID = "qr_code_id";
-    private static final int REQUEST_WRITE_STORAGE = 112;
+    private static final String ARG_IS_CREATOR = "is_creator";
 
-    public static QRCodeDialogFragment newInstance(String qrCode) {
+    private static final int REQUEST_WRITE_STORAGE = 112;
+    private OnQRCodeDeletedListener listener;
+
+
+    public static QRCodeDialogFragment newInstance(byte[] qrCodeByteArray, String qrCodeMess, String qrCodeId, boolean isCreator,  OnQRCodeDeletedListener listener) {
         QRCodeDialogFragment fragment = new QRCodeDialogFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_QR_CODE_ID, qrCode);
+        args.putByteArray(ARG_QR_CODE_BYTE_ARRAY, qrCodeByteArray);
+        args.putString(ARG_QR_CODE_MESS, qrCodeMess);
+        args.putString(ARG_QR_CODE_ID, qrCodeId);
+        args.putBoolean(ARG_IS_CREATOR, isCreator);
         fragment.setArguments(args);
+        fragment.listener = listener;
         return fragment;
     }
 
@@ -59,28 +68,49 @@ public class QRCodeDialogFragment extends DialogFragment {
         ImageView qrCodeImageView = view.findViewById(R.id.qrCodeImageView);
         Button deleteButton = view.findViewById(R.id.deleteButton);
         Button downloadButton = view.findViewById(R.id.downloadButton);
+        TextView qrCodeMsgTV = view.findViewById(R.id.qrCodeTV);
 
         assert getArguments() != null;
-        String qrCodeID = getArguments().getString(ARG_QR_CODE_ID);
+        byte[] qrCodeByteArray = getArguments().getByteArray(ARG_QR_CODE_BYTE_ARRAY);
+        String qrCodeMess = getArguments().getString(ARG_QR_CODE_MESS);
+        String qrCodeId = getArguments().getString(ARG_QR_CODE_ID);
+        boolean isCreator = getArguments().getBoolean(ARG_IS_CREATOR);
+
+
+        qrCodeMsgTV.setText(qrCodeMess);
+        qrCodeMsgTV.setMovementMethod(new ScrollingMovementMethod());
 
         // Ottieni la larghezza dello schermo
         DisplayMetrics displayMetrics = new DisplayMetrics();
         requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = displayMetrics.widthPixels;
+        if(width > 1080) width = 1080;
 
-        // Genera e mostra il codice QR
-        Bitmap qrCodeBitmap = QRCodeAdapter.generateQRCode(qrCodeID, width);
-        qrCodeImageView.setImageBitmap(qrCodeBitmap);
+        // Ricrea il bitmap dal byte array
+        Bitmap qrCodeBitmap = BitmapFactory.decodeByteArray(qrCodeByteArray, 0, qrCodeByteArray.length);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(qrCodeBitmap, width, width, false);
+        qrCodeImageView.setImageBitmap(resizedBitmap);
 
-        // Imposta i listener per i pulsanti
-        deleteButton.setOnClickListener(v -> {
-            // Logica per eliminare il QR code
-            dismiss();
-        });
+        //check se siamo nel fragment crea/verifica promozione o in le mie promo -> show/hide deleteButton
+        if(isCreator){
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener(v -> FirebaseWrapper.Database.DeleteQRCode(qrCodeId, requireContext(), deleted -> {
+                if(deleted) {
+                    this.dismiss();
+                    //aggiornare recyclerview qrcode eliminando la promo tolta
+                    if (listener != null) {
+                        listener.onQRCodeDeleted(qrCodeId);
+                    }
+                }
+            }));
+        } else {
+            deleteButton.setVisibility(View.GONE);
+        }
+
 
         downloadButton.setOnClickListener(v -> {
             if (isStoragePermissionGranted()) {
-                saveQRCodeToGallery(qrCodeBitmap);
+                saveQRCodeToGallery(resizedBitmap);
             }
         });
     }

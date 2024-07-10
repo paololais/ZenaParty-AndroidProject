@@ -19,7 +19,7 @@
     <string name="orario">Time:</string>
     <string name="prezzo">Price:</string>
     <string name="tipologia">Type:</string>
-    <string name="i_tuoi_eventi">Your events</string>
+    <string name="i_tuoi_eventi">Created events</string>
     <string name="nessun_evento_inserito">No events inserted.</string>
     <string name="i_tuoi_preferiti">Your favorites</string>
     <string name="seleziona_categoria">Select category</string>
@@ -84,4 +84,14 @@
     <string name="confirm">Conferma</string>
     <string name="hint_congratulazioni">Congratulazioni! Hai ricevuto...</string>
     <string name="help_crea_verifica_promo">In questa sezione puoi trovare le promozioni da te create. Inoltre puoi creare nuove promo e convalidare quelle dei tuoi clienti.</string>
+    <string name="qr_not_valid_retry">Il QR code scannerizzato non è valido. Riprova.</string>
+    <string name="nessuna_promozione_aggiunta">Nessuna promozione aggiunta.</string>
+    <string name="verifica">Verifica</string>
+    <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">Nessun QR code aggiunto.\nI codici da te creati verranno mostrati qui.</string>
+    <string name="crea">Crea</string>
+    <string name="clicca_qui_per_usare_il_bonus">Clicca qui per usare il bonus</string>
+    <string name="rimuovi">Rimuovi</string>
+    <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni]]></string>
+    <string name="already_used">Siamo spiacenti: hai già utilizzato questa promo</string>
+    <string name="no_corrispondenza">Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.</string>
 </resources>

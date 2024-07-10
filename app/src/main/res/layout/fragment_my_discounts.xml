@@ -24,7 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="50dp"
             android:layout_toEndOf="@id/goBackBtn"
-            android:text="I tuoi sconti"
+            android:text="@string/i_tuoi_sconti"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -35,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
-        android:text="Nessuno sconto aggiunto"
+        android:text="@string/nessuna_promozione_aggiunta"
         android:textAlignment="center"
         android:textSize="15sp"
         android:textStyle="italic"

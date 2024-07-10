@@ -95,44 +95,6 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/myeventsRL"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_border"
-                android:layout_marginTop="30dp">
-
-
-                <ImageView
-                    android:id="@+id/edit_icon"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="#03A9F4"
-                    android:src="@drawable/baseline_publish_24"
-                    tools:ignore="ContentDescription,ImageContrastCheck" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="20dp"
-                    android:layout_toEndOf="@+id/edit_icon"
-                    android:text="@string/i_tuoi_eventi"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    tools:ignore="RelativeOverlap" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/right_mode_icon"
-                    tools:ignore="ContentDescription" />
-
-
-            </RelativeLayout>
-
-            <RelativeLayout
                 android:id="@+id/myfavoritesRL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -168,6 +130,45 @@
                     android:src="@drawable/right_mode_icon"
                     tools:ignore="ContentDescription" />
             </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/myeventsRL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/edit_text_border">
+
+
+                <ImageView
+                    android:id="@+id/edit_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#03A9F4"
+                    android:src="@drawable/baseline_publish_24"
+                    tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@+id/edit_icon"
+                    android:text="@string/i_tuoi_eventi"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_mode_icon"
+                    tools:ignore="ContentDescription" />
+
+
+            </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/your_qrRL"
                 android:layout_width="match_parent"

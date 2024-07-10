@@ -3,8 +3,10 @@ package com.example.zenaparty.models;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
@@ -142,6 +144,10 @@ public class FirebaseWrapper {
 
     public interface OnQRCodeFoundListener {
         void onQRCodeFound(boolean found);
+    }
+
+    public interface OnQRDeletedListener {
+        void onQRDeleted(boolean deleted);
     }
     //database
     public static class Database {
@@ -322,7 +328,7 @@ public class FirebaseWrapper {
                     .show();
         }
 
-        public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar, TextView okUsername) {
+        public static void modifyUsername(Context context, String newUsername, ProgressBar progressBar, TextView okUsername, EditText usernameET) {
             // Mostra il progresso di caricamento
             progressBar.setVisibility(View.VISIBLE);
             okUsername.setVisibility(View.GONE);
@@ -338,6 +344,8 @@ public class FirebaseWrapper {
                             Log.d("FirebaseWrapper", "Modified username");
                             progressBar.setVisibility(View.GONE);
                             okUsername.setVisibility(View.VISIBLE);
+                            usernameET.getText().clear();
+                            saveUsernameToSharedPreferences(context, newUsername);
                             Toast.makeText(context, "Username modificato", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
@@ -352,7 +360,7 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void getAndSetUsername(TextView usernameTv) {
+        public static void getAndSetUsername(TextView usernameTv, Context context) {
             FirebaseAuth auth = FirebaseAuth.getInstance();
 
             if (auth.getCurrentUser() != null) {
@@ -366,6 +374,7 @@ public class FirebaseWrapper {
                             String username = dataSnapshot.getValue(String.class);
                             // Imposta il valore dello username sul TextView
                             usernameTv.setText(username);
+                            saveUsernameToSharedPreferences(context, username);
                         } else {
                             // Lo username non esiste nel database
                             Log.d("FirebaseWrapper", "Username non trovato nel database");
@@ -382,6 +391,12 @@ public class FirebaseWrapper {
                 // L'utente non è autenticato
                 Log.d("FirebaseWrapper", "Utente non autenticato");
             }
+        }
+        private static void saveUsernameToSharedPreferences(Context context, String username) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("username", username);
+            editor.apply();
         }
 
         public static void getUsername(String userId, TextView usernameTv) {
@@ -558,7 +573,7 @@ public class FirebaseWrapper {
             });
         }
 
-        public static void CreateQRCode(Context context, String QRMessage){
+        public static void CreateQRCode(Context context, String QRMessage, OnQRCodeFoundListener listener){
             FirebaseAuth auth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = auth.getCurrentUser();
             if (currentUser != null) {
@@ -573,10 +588,12 @@ public class FirebaseWrapper {
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(context, "New QR Code created", Toast.LENGTH_SHORT).show();
                             Log.d("FirebaseWrapper", "New QR Code saved successfully");
+                            listener.onQRCodeFound(true);
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(context, "Error creating new QR Code", Toast.LENGTH_SHORT).show();
                             Log.e("FirebaseWrapper", "Error creating new QR Code: " + e.getMessage());
+                            listener.onQRCodeFound(false);
                         });
             }
         }
@@ -599,12 +616,12 @@ public class FirebaseWrapper {
                                     if (snapshot.exists()) {
                                         if (Boolean.TRUE.equals(snapshot.getValue(Boolean.class))) {
                                             listener.onQRCodeFound(false);
-                                            messageTV.setText("Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni");
+                                            messageTV.setText(R.string.already_scanned);
 
                                         } else {
                                             //codice già usato
                                             listener.onQRCodeFound(false);
-                                            messageTV.setText("Siamo spiacenti: hai già utilizzato questa promo");
+                                            messageTV.setText(R.string.already_used);
                                         }
                                     } else {
                                         //codice non trovato nel db utente
@@ -621,7 +638,7 @@ public class FirebaseWrapper {
                             });
                         } else {
                             listener.onQRCodeFound(false);
-                            messageTV.setText("Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.");
+                            messageTV.setText(R.string.no_corrispondenza);
                         }
                     }
 
@@ -634,21 +651,59 @@ public class FirebaseWrapper {
             }
         }
 
-        public static void DeleteQRCode(String qrCodeID){
+        public static void DeleteQRCode(String qrCodeID, Context context, OnQRDeletedListener listener){
             FirebaseAuth auth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = auth.getCurrentUser();
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             if (currentUser != null) {
                 // Ottieni l'ID dell'utente corrente
                 String currentUserId = currentUser.getUid();
                 DatabaseReference QRCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeID);
+                QRCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String qrUserId = snapshot.child("qrUserId").getValue(String.class);
+                            assert qrUserId != null;
+                            if (qrUserId.equals(currentUserId)) {
+                                // ok l'utente attuale è il creatore della promo
+                                builder.setTitle("Rimuovi");
+                                builder.setMessage("Sei sicuro di voler rimuovere questa promozione?");
+                                builder.setPositiveButton("Conferma", (dialog,which)-> QRCodeRef.removeValue()
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("FirebaseWrapper", "QR Code deleted successfully");
+                                            listener.onQRDeleted(true);
+                                            DeleteDiscount(qrCodeID);
+                                        })
+                                        .addOnFailureListener(e-> {
+                                            Log.e("FirebaseWrapper", "Error while deleting QR code");
+                                            listener.onQRDeleted(false);
+                                        }));
+                                builder.setNegativeButton("Annulla", (dialog,which)-> {
+                                    dialog.dismiss();
+                                    listener.onQRDeleted(false);
+                                });
+                                builder.show();
+                            } else {
+                                builder.setTitle("Attenzione");
+                                builder.setMessage("Impossibile procedere: questa promo non è stata creata da te.");
+                                builder.setNeutralButton("Ok", (dialog,which)-> dialog.dismiss());
+                                builder.show();
+                            }
+                        }
+                    }
 
-                QRCodeRef.removeValue()
-                        .addOnSuccessListener(aVoid -> Log.d("FirebaseWrapper", "QR Code deleted successfully"))
-                        .addOnFailureListener(e-> Log.e("FirebaseWrapper", "Error while deleting QR code"));
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.onQRDeleted(false);
+                        Log.e("FirebaseWrapper", error.getMessage());
+                    }
+                });
             }
         }
 
         public static void GetUserQrCodes(List<QRCodeData> list, QRCodeAdapter qrCodeAdapter, ProgressBar progressBar, TextView noQrTV){
+            progressBar.setVisibility(View.VISIBLE);
             FirebaseAuth auth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = auth.getCurrentUser();
             if (currentUser != null) {
@@ -698,6 +753,26 @@ public class FirebaseWrapper {
                 discountsRef.child(qrId).setValue(true);
             }
         }
+        public static void DeleteDiscount(String qrId){
+            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+            usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        DataSnapshot disc = dataSnapshot.child("discounts");
+                        if(disc.exists() && disc.hasChild(qrId)){
+                            dataSnapshot.getRef().child("discounts").child(qrId).removeValue();
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("FirebaseWrapper", "Errore durante l'accesso ai dati: " + error.getMessage());
+
+                }
+            });
+        }
         public static void GetUserDiscounts(List<QRCodeData> list, QRCodeAdapter qrCodeAdapter, ProgressBar progressBar, TextView noDiscountsTv) {
             progressBar.setVisibility(View.VISIBLE);
             FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -714,35 +789,47 @@ public class FirebaseWrapper {
 
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot discountSnapshot : dataSnapshot.getChildren()) {
-                                String qrCodeId = discountSnapshot.getKey();
+                                if(Boolean.TRUE.equals(discountSnapshot.getValue(Boolean.class))) {
+                                    String qrCodeId = discountSnapshot.getKey();
 
-                                assert qrCodeId != null;
-                                DatabaseReference qrCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeId);
-                                qrCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot qrCodeSnapshot) {
-                                        if (qrCodeSnapshot.exists()) {
-                                            String message = qrCodeSnapshot.child("message").getValue(String.class);
-                                            QRCodeData qrCodeData = new QRCodeData(qrCodeId+" "+currentUserId, message,currentUserId);
-                                            list.add(qrCodeData);
+                                    assert qrCodeId != null;
+                                    DatabaseReference qrCodeRef = FirebaseDatabase.getInstance().getReference("qr_codes").child(qrCodeId);
+                                    qrCodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot qrCodeSnapshot) {
+                                            if (qrCodeSnapshot.exists()) {
+                                                String message = qrCodeSnapshot.child("message").getValue(String.class);
+                                                QRCodeData qrCodeData = new QRCodeData(qrCodeId+" "+currentUserId, message,currentUserId);
+                                                list.add(qrCodeData);
+                                            }
+
+                                            qrCodeAdapter.notifyDataSetChanged();
+                                            progressBar.setVisibility(View.GONE);
+
+                                            if (list.isEmpty()) {
+                                                noDiscountsTv.setVisibility(View.VISIBLE);
+                                            } else {
+                                                noDiscountsTv.setVisibility(View.GONE);
+                                            }
                                         }
 
-                                        qrCodeAdapter.notifyDataSetChanged();
-                                        progressBar.setVisibility(View.GONE);
-
-                                        if (list.isEmpty()) {
-                                            noDiscountsTv.setVisibility(View.VISIBLE);
-                                        } else {
-                                            noDiscountsTv.setVisibility(View.GONE);
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            progressBar.setVisibility(View.GONE);
+                                            Log.e("FirebaseWrapper", "Error fetching QR code data: " + databaseError.getMessage());
                                         }
-                                    }
+                                    });
+                                } else {
+                                    qrCodeAdapter.notifyDataSetChanged();
+                                    progressBar.setVisibility(View.GONE);
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                                        progressBar.setVisibility(View.GONE);
-                                        Log.e("FirebaseWrapper", "Error fetching QR code data: " + databaseError.getMessage());
+                                    if (list.isEmpty()) {
+                                        noDiscountsTv.setVisibility(View.VISIBLE);
+                                    } else {
+                                        noDiscountsTv.setVisibility(View.GONE);
                                     }
-                                });
+                                }
+
                             }
                         } else {
                             progressBar.setVisibility(View.GONE);
@@ -800,9 +887,9 @@ public class FirebaseWrapper {
                                             if (Boolean.TRUE.equals(snapshot.getValue(Boolean.class))){
                                                 //codice ok
                                                 discountsRef.child(extractedBonusId).setValue(false);
-                                                builder.setTitle("Verifica Sconto");
+                                                builder.setTitle("Verifica Promp");
                                                 String message = Objects.requireNonNull(dataSnapshot.child("message").getValue()).toString();
-                                                builder.setMessage("Sconto verificato con successo. Promo del cliente:\n\n"+message);
+                                                builder.setMessage("Promo verificata con successo. Messaggio della promo:\n\n"+message);
                                                 builder.setNeutralButton("Ok", (dialog,which)-> dialog.dismiss());
                                                 builder.show();
                                             } else {
