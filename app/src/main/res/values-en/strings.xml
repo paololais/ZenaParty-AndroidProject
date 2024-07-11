@@ -77,21 +77,38 @@
     <string name="logout_dialog">Are you sure you want to logout?</string>
     <string name="remove_review">Are you sure you want to remove your review?</string>
     <string name="exit_dialog">You may have unsaved data. Are you sure you want to exit the app?</string>
-    <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
-    <string name="crea_verifica_promo">Il tuo QR Code</string>
-    <string name="i_tuoi_sconti">I tuoi sconti</string>
-    <string name="crea_promo">Crea nuova promo</string>
-    <string name="confirm">Conferma</string>
-    <string name="hint_congratulazioni">Congratulazioni! Hai ricevuto...</string>
-    <string name="help_crea_verifica_promo">In questa sezione puoi trovare le promozioni da te create. Inoltre puoi creare nuove promo e convalidare quelle dei tuoi clienti.</string>
-    <string name="qr_not_valid_retry">Il QR code scannerizzato non è valido. Riprova.</string>
-    <string name="nessuna_promozione_aggiunta">Nessuna promozione aggiunta.</string>
-    <string name="verifica">Verifica</string>
-    <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">Nessun QR code aggiunto.\nI codici da te creati verranno mostrati qui.</string>
-    <string name="crea">Crea</string>
-    <string name="clicca_qui_per_usare_il_bonus">Clicca qui per usare il bonus</string>
-    <string name="rimuovi">Rimuovi</string>
-    <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni]]></string>
-    <string name="already_used">Siamo spiacenti: hai già utilizzato questa promo</string>
-    <string name="no_corrispondenza">Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.</string>
+    <string name="qr_code_not_valid">QR code not valid. Please try again.</string>
+    <string name="crea_verifica_promo">Create/Verify promo</string>
+    <string name="i_tuoi_sconti">Promo to use</string>
+    <string name="crea_promo">Create new promo</string>
+    <string name="confirm">Confirm</string>
+    <string name="hint_congratulazioni">Congratulations! You have received...</string>
+    <string name="help_crea_verifica_promo">In this section, you can find the promotions you created. You can also create new promos and validate those of your customers.</string>
+    <string name="qr_not_valid_retry">The scanned QR code is not valid. Please try again.</string>
+    <string name="nessuna_promozione_aggiunta">No promotion added.</string>
+    <string name="verifica">Verify</string>
+    <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">No QR code added.\nThe codes you created will be shown here.</string>
+    <string name="crea">Create</string>
+    <string name="fireworks" translatable="false">fireworks</string>
+    <string name="clicca_qui_per_usare_il_bonus">Click here to use the bonus</string>
+    <string name="generated_qr_bonus" translatable="false">generated QR Bonus</string>
+    <string name="qr_code" translatable="false">QR Code</string>
+    <string name="rimuovi">Remove</string>
+    <string name="download" translatable="false">Download</string>
+    <string name="already_scanned"><![CDATA[You have already scanned this QR code.\nYou can find it in your profile section -> Your promotions]]></string>
+    <string name="already_used">Sorry: you have already used this promo</string>
+    <string name="no_corrispondenza">The scanned QR code does not match any promotion. Please try again.</string>
+    <string name="remove">Remove</string>
+    <string name="remove_msg">Are you sure you want to remove this promotion?</string>
+    <string name="attenzione">Attention</string>
+    <string name="attenzione_msg">Unable to proceed: this promo was not created by you.</string>
+    <string name="promo_non_esiste">Unable to proceed: non-existent promo or invalid format.</string>
+    <string name="close">Close</string>
+    <string name="verifica_promo">Verify Promo</string>
+    <string name="promo_ok">Promo successfully verified. Promo message:\n\n</string>
+    <string name="promo_used">Discount already used</string>
+    <string name="never_scanned">Discount never scanned by the customer</string>
+    <string name="not_by_u">Unable to proceed: this promo was not created by you.</string>
+
+
 </resources>

@@ -1,7 +1,7 @@
 package com.example.zenaparty.fragments;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,12 +30,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import com.example.zenaparty.R;
-import android.Manifest;
 import com.example.zenaparty.adapters.EventListAdapter;
 import com.example.zenaparty.models.EventListInterface;
 import com.example.zenaparty.models.FilterDialogListener;
 import com.example.zenaparty.models.MyEvent;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -67,8 +65,6 @@ public class HomeFragment extends Fragment
     String newFormattedDate;
     private SharedPreferences sharedPreferences;
     private boolean isNewlyCreated = true;
-    private boolean isFabOpen = false;
-    private boolean isScanningQR;
     final Calendar calendar = Calendar.getInstance();
     final int year = calendar.get(Calendar.YEAR);
     final int month = calendar.get(Calendar.MONTH);
@@ -225,9 +221,7 @@ public class HomeFragment extends Fragment
 
         btnRefresh.setOnClickListener(view12 -> readDatabase(database));
 
-        fab.setOnClickListener(v -> {
-            checkCameraPermissionAndLaunch();
-        });
+        fab.setOnClickListener(v -> checkCameraPermissionAndLaunch());
 
         recyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
@@ -426,24 +420,7 @@ public class HomeFragment extends Fragment
         fragmentTransaction.commit();
     }
 
-    private void showDiscountVerificationDialog(String discountCode) {
-        // Qui mostrerai un dialog che verifica lo sconto
-        // Esempio di un dialog di conferma
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Verifica Sconto");
-        builder.setMessage("Sconto verificato con successo.\nDesideri confermare l'utilizzo dello sconto?");
-        builder.setPositiveButton("Conferma", (dialog, which) -> {
-            // Esegui azioni di conferma dello sconto (es. invia al server, ecc.)
-            Toast.makeText(requireContext(), "Sconto confermato", Toast.LENGTH_SHORT).show();
-            // Esempio di azioni post-conferma (es. navigazione o altro)
-        });
-        builder.setNegativeButton("Annulla", (dialog, which) -> {
-            // Azioni da eseguire se l'utente annulla la conferma dello sconto
-            Toast.makeText(requireContext(), "Conferma annullata", Toast.LENGTH_SHORT).show();
-        });
-        builder.show();
-    }
-    private ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted-> {
                 if(isGranted){
                     showCamera();

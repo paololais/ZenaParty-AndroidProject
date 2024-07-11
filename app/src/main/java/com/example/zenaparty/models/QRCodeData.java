@@ -1,7 +1,5 @@
 package com.example.zenaparty.models;
 
-import com.example.zenaparty.adapters.QRCodeAdapter;
-
 public class QRCodeData {
     private String qrCodeId;
     private String message;

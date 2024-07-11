@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.zenaparty.R;
 import com.example.zenaparty.activities.LogActivity;
+import com.example.zenaparty.models.FirebaseWrapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -86,6 +87,13 @@ public class SettingsFragment extends Fragment {
             builder.setMessage(R.string.logout_dialog)
                     .setPositiveButton("Ok", (dialog, which) -> {
                         FirebaseAuth.getInstance().signOut();
+
+                        //delete username from shared preferences
+                        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.remove("username");
+                        editor.apply();
+
                         Intent intent = new Intent(getActivity(), LogActivity.class);
                         startActivity(intent);
                         requireActivity().finish();

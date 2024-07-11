@@ -83,7 +83,6 @@ public class FirebaseWrapper {
 
     // Auth with email and password: https://firebase.google.com/docs/auth/android/password-auth?hl=en
     public static class Auth {
-        private final static String TAG = Auth.class.getCanonicalName();
         private final FirebaseAuth auth;
 
         public Auth() {
@@ -667,9 +666,9 @@ public class FirebaseWrapper {
                             assert qrUserId != null;
                             if (qrUserId.equals(currentUserId)) {
                                 // ok l'utente attuale è il creatore della promo
-                                builder.setTitle("Rimuovi");
-                                builder.setMessage("Sei sicuro di voler rimuovere questa promozione?");
-                                builder.setPositiveButton("Conferma", (dialog,which)-> QRCodeRef.removeValue()
+                                builder.setTitle(R.string.remove);
+                                builder.setMessage(R.string.remove_msg);
+                                builder.setPositiveButton(R.string.confirm, (dialog,which)-> QRCodeRef.removeValue()
                                         .addOnSuccessListener(aVoid -> {
                                             Log.d("FirebaseWrapper", "QR Code deleted successfully");
                                             listener.onQRDeleted(true);
@@ -679,14 +678,14 @@ public class FirebaseWrapper {
                                             Log.e("FirebaseWrapper", "Error while deleting QR code");
                                             listener.onQRDeleted(false);
                                         }));
-                                builder.setNegativeButton("Annulla", (dialog,which)-> {
+                                builder.setNegativeButton(R.string.annulla, (dialog,which)-> {
                                     dialog.dismiss();
                                     listener.onQRDeleted(false);
                                 });
                                 builder.show();
                             } else {
-                                builder.setTitle("Attenzione");
-                                builder.setMessage("Impossibile procedere: questa promo non è stata creata da te.");
+                                builder.setTitle(R.string.attenzione);
+                                builder.setMessage(R.string.attenzione_msg);
                                 builder.setNeutralButton("Ok", (dialog,which)-> dialog.dismiss());
                                 builder.show();
                             }
@@ -861,9 +860,9 @@ public class FirebaseWrapper {
                     extractedBonusId = parts[0];
                     extractedPromoUserID = parts[1];
                 } else {
-                    builder.setTitle("Attenzione");
-                    builder.setMessage("Impossibile procedere: promo non esistente o formato non valido.");
-                    builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                    builder.setTitle(R.string.attenzione);
+                    builder.setMessage(R.string.promo_non_esiste);
+                    builder.setNeutralButton(R.string.close, (dialog, which)-> dialog.dismiss());
                     builder.show();
                     return;
                 }
@@ -887,21 +886,21 @@ public class FirebaseWrapper {
                                             if (Boolean.TRUE.equals(snapshot.getValue(Boolean.class))){
                                                 //codice ok
                                                 discountsRef.child(extractedBonusId).setValue(false);
-                                                builder.setTitle("Verifica Promp");
+                                                builder.setTitle(R.string.verifica_promo);
                                                 String message = Objects.requireNonNull(dataSnapshot.child("message").getValue()).toString();
-                                                builder.setMessage("Promo verificata con successo. Messaggio della promo:\n\n"+message);
+                                                builder.setMessage(R.string.promo_ok+message);
                                                 builder.setNeutralButton("Ok", (dialog,which)-> dialog.dismiss());
                                                 builder.show();
                                             } else {
-                                                builder.setTitle("Attenzione");
-                                                builder.setMessage("Sconto già utilizzato");
-                                                builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                                                builder.setTitle(R.string.attenzione);
+                                                builder.setMessage(R.string.promo_used);
+                                                builder.setNeutralButton(R.string.close, (dialog,which)-> dialog.dismiss());
                                                 builder.show();
                                             }
                                         } else {
-                                            builder.setTitle("Attenzione");
-                                            builder.setMessage("Sconto mai scannerizzato dal cliente");
-                                            builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                                            builder.setTitle(R.string.attenzione);
+                                            builder.setMessage(R.string.never_scanned);
+                                            builder.setNeutralButton(R.string.close, (dialog,which)-> dialog.dismiss());
                                             builder.show();
                                         }
                                     }
@@ -913,17 +912,17 @@ public class FirebaseWrapper {
                                 });
                             } else {
                                 //codice scannerizzato non è stato creato dall'utente attuale: non può convalidarlo
-                                builder.setTitle("Attenzione");
-                                builder.setMessage("Impossibile procedere: questa promo non è stata creata da te.");
-                                builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                                builder.setTitle(R.string.attenzione);
+                                builder.setMessage(R.string.not_by_u);
+                                builder.setNeutralButton(R.string.close, (dialog,which)-> dialog.dismiss());
                                 builder.show();
                             }
 
                         } else {
                             //codice qr non esiste nel db
-                            builder.setTitle("Attenzione");
-                            builder.setMessage("Impossibile procedere: promo non esistente.");
-                            builder.setNeutralButton("Chiudi", (dialog,which)-> dialog.dismiss());
+                            builder.setTitle(R.string.attenzione);
+                            builder.setMessage(R.string.promo_non_esiste);
+                            builder.setNeutralButton(R.string.close, (dialog,which)-> dialog.dismiss());
                             builder.show();
                         }
                     }

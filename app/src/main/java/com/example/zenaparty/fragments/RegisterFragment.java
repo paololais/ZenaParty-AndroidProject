@@ -113,13 +113,9 @@ public class RegisterFragment extends LogFragment {
         usersRef.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // Lo username è già in uso
-                    callback.onUsernameAvailabilityChecked(false);
-                } else {
-                    // Lo username è disponibile
-                    callback.onUsernameAvailabilityChecked(true);
-                }
+                // Lo username è già in uso
+                // Lo username è disponibile
+                callback.onUsernameAvailabilityChecked(!dataSnapshot.exists());
             }
 
             @Override

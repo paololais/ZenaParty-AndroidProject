@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Zena Party</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="goToLogin">Vous avez déjà un compte? Cliquez ici et connectez-vous!</string>
     <string name="goToRegister">Non enregistré? Cliquez ici pour créer un nouveau compte!</string>
     <string name="places_prompt">Test</string>
@@ -77,21 +76,37 @@
     <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter?</string>
     <string name="remove_review">Êtes-vous sûr de vouloir supprimer votre avis?</string>
     <string name="exit_dialog">vous avez peut-être des données non enregistrées. Êtes-vous sûr de vouloir quitter l\'application?</string>
-    <string name="qr_code_not_valid">QR code non valido. Riprovare.</string>
-    <string name="crea_verifica_promo">Il tuo QR Code</string>
-    <string name="i_tuoi_sconti">I tuoi sconti</string>
-    <string name="crea_promo">Crea nuova promo</string>
-    <string name="confirm">Conferma</string>
-    <string name="hint_congratulazioni">Congratulazioni! Hai ricevuto...</string>
-    <string name="help_crea_verifica_promo">In questa sezione puoi trovare le promozioni da te create. Inoltre puoi creare nuove promo e convalidare quelle dei tuoi clienti.</string>
-    <string name="qr_not_valid_retry">Il QR code scannerizzato non è valido. Riprova.</string>
-    <string name="nessuna_promozione_aggiunta">Nessuna promozione aggiunta.</string>
-    <string name="verifica">Verifica</string>
-    <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">Nessun QR code aggiunto.\nI codici da te creati verranno mostrati qui.</string>
-    <string name="crea">Crea</string>
-    <string name="clicca_qui_per_usare_il_bonus">Clicca qui per usare il bonus</string>
-    <string name="rimuovi">Rimuovi</string>
-    <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni]]></string>
-    <string name="already_used">Siamo spiacenti: hai già utilizzato questa promo</string>
-    <string name="no_corrispondenza">Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.</string>
+    <string name="qr_code_not_valid">QR code non valide. Veuillez réessayer.</string>
+    <string name="crea_verifica_promo">Créer/Vérifier promo</string>
+    <string name="i_tuoi_sconti">Promo à utiliser</string>
+    <string name="crea_promo">Créer nouvelle promo</string>
+    <string name="confirm">Confirmer</string>
+    <string name="hint_congratulazioni">Félicitations ! Vous avez reçu...</string>
+    <string name="help_crea_verifica_promo">Dans cette section, vous pouvez trouver les promotions que vous avez créées. Vous pouvez également créer de nouvelles promotions et valider celles de vos clients.</string>
+    <string name="qr_not_valid_retry">Le QR code scanné n\'est pas valide. Veuillez réessayer.</string>
+    <string name="nessuna_promozione_aggiunta">Aucune promotion ajoutée.</string>
+    <string name="verifica">Vérifier</string>
+    <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">Aucun QR code ajouté.\nLes codes que vous avez créés seront affichés ici.</string>
+    <string name="crea">Créer</string>
+    <string name="fireworks" translatable="false">fireworks</string>
+    <string name="clicca_qui_per_usare_il_bonus">Cliquez ici pour utiliser le bonus</string>
+    <string name="generated_qr_bonus" translatable="false">generated QR Bonus</string>
+    <string name="qr_code" translatable="false">QR Code</string>
+    <string name="rimuovi">Supprimer</string>
+    <string name="download" translatable="false">Download</string>
+    <string name="already_scanned"><![CDATA[Vous avez déjà scanné ce QR code.\nVous le trouvez dans votre section profil -> Vos promotions]]></string>
+    <string name="already_used">Désolé : vous avez déjà utilisé cette promo</string>
+    <string name="no_corrispondenza">Le QR code scanné ne correspond à aucune promotion. Veuillez réessayer.</string>
+    <string name="remove">Supprimer</string>
+    <string name="remove_msg">Êtes-vous sûr de vouloir supprimer cette promotion ?</string>
+    <string name="attenzione">Attention</string>
+    <string name="attenzione_msg">Impossible de procéder : cette promo n\'a pas été créée par vous.</string>
+    <string name="promo_non_esiste">Impossible de procéder : promo inexistante ou format invalide.</string>
+    <string name="close">Fermer</string>
+    <string name="verifica_promo">Vérifier Promo</string>
+    <string name="promo_ok">Promo vérifiée avec succès. Message de la promo :\n\n</string>
+    <string name="promo_used">Réduction déjà utilisée</string>
+    <string name="never_scanned">Réduction jamais scannée par le client</string>
+    <string name="not_by_u">Impossible de procéder : cette promo n\'a pas été créée par vous.</string>
+
 </resources>

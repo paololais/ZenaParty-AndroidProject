@@ -87,13 +87,24 @@
     <string name="verifica">Verifica</string>
     <string name="nessun_qr_code_aggiunto_ni_codici_da_te_creati_verranno_mostrati_qui">Nessun QR code aggiunto.\nI codici da te creati verranno mostrati qui.</string>
     <string name="crea">Crea</string>
-    <string name="fireworks" translatable="false">fireworks</string>
+    <string name="fireworks">fireworks</string>
     <string name="clicca_qui_per_usare_il_bonus">Clicca qui per usare il bonus</string>
-    <string name="generated_qr_bonus" translatable="false">generated QR Bonus</string>
-    <string name="qr_code" translatable="false">QR Code</string>
+    <string name="generated_qr_bonus">generated QR Bonus</string>
+    <string name="qr_code">QR Code</string>
     <string name="rimuovi">Rimuovi</string>
-    <string name="download" translatable="false">Download</string>
+    <string name="download">Download</string>
     <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni]]></string>
     <string name="already_used">Siamo spiacenti: hai già utilizzato questa promo</string>
     <string name="no_corrispondenza">Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.</string>
+    <string name="remove">Rimuovi</string>
+    <string name="remove_msg">Sei sicuro di voler rimuovere questa promozione?</string>
+    <string name="attenzione">Attenzione</string>
+    <string name="attenzione_msg">Impossibile procedere: questa promo non è stata creata da te.</string>
+    <string name="promo_non_esiste">Impossibile procedere: promo non esistente o formato non valido.</string>
+    <string name="close">Chiudi</string>
+    <string name="verifica_promo">Verifica Promo</string>
+    <string name="promo_ok">Promo verificata con successo. Messaggio della promo:\n\n</string>
+    <string name="promo_used">Sconto già utilizzato</string>
+    <string name="never_scanned">Sconto mai scannerizzato dal cliente</string>
+    <string name="not_by_u">Impossibile procedere: questa promo non è stata creata da te.</string>
 </resources>
