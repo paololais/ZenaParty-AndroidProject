@@ -93,7 +93,7 @@
     <string name="qr_code">QR Code</string>
     <string name="rimuovi">Rimuovi</string>
     <string name="download">Download</string>
-    <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Le tue promozioni]]></string>
+    <string name="already_scanned"><![CDATA[Hai già scannerizzato questo codice QR.\nLo trovi nella tua sezione profilo -> Promo da utilizzare]]></string>
     <string name="already_used">Siamo spiacenti: hai già utilizzato questa promo</string>
     <string name="no_corrispondenza">Il QR code scannerizzato non corrisponde a nessuna promozione. Riprova.</string>
     <string name="remove">Rimuovi</string>
